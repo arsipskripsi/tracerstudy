@@ -12,7 +12,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 */
 
 // Default route
-$route['default_controller'] = 'auth';
+$route['default_controller'] = 'auth/auth/login';
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
 
