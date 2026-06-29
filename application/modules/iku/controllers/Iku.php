@@ -603,7 +603,7 @@ class Iku extends MY_Controller {
     {
         $log_data = [
             'user_id' => $this->user_data['id'] ?? null,
-            'activity_type' => $activity_type,
+            'action' => $activity_type,
             'description' => json_encode($data),
             'ip_address' => $this->input->ip_address(),
             'created_at' => date('Y-m-d H:i:s')

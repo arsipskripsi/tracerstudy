@@ -1,52 +1,26 @@
 ```
-# CodeIgniter specific ignores
-application/logs/
-application/cache/
-application/config/database.php
-application/config/autoload.php
-application/config/config.php
-application/config/constants.php
-application/config/doctypes.php
-application/config/foreign_chars.php
-application/config/hooks.php
-application/config/memcached.php
-application/config/profiler.php
-application/config/routes.php
-application/config/smileys.php
-application/config/user_agents.php
-
-# Environment specific
-.env
-.env.local
-.env.*
-
-# Logs
-*.log
-application/logs/*
-
-# Cache
-cache/
-__pycache__/
+# Compiled and build artifacts
 *.pyc
-*.pyo
-*.pyd
+__pycache__/
 
 # Dependencies
-node_modules/
 vendor/
+composer.lock
 
-# IDE
+# Logs and temp files
+*.log
+*.tmp
+
+# Environment
+.env
+.env.local
+*.env.*
+
+# Editors
 .vscode/
 .idea/
-*.swp
-*.swo
 
-# OS
+# OS generated files
 .DS_Store
 Thumbs.db
-
-# Build artifacts
-build/
-dist/
-target/
 ```
