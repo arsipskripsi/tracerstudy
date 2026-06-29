@@ -40,10 +40,10 @@ class Audit extends Admin_Controller {
         $data['modules'] = array_column($modules, 'table_name');
         
         // Ambil list action unik
-        $this->db->select('activity_type');
+        $this->db->select('action');
         $this->db->distinct();
         $actions = $this->db->get('activity_logs')->result_array();
-        $data['actions'] = array_column($actions, 'activity_type');
+        $data['actions'] = array_column($actions, 'action');
         
         // Load view
         $this->load->view('admin/templates/header', $data);
@@ -80,7 +80,7 @@ class Audit extends Admin_Controller {
             $this->db->where('al.table_name', $filter_module);
         }
         if ($filter_action) {
-            $this->db->where('al.activity_type', $filter_action);
+            $this->db->where('al.action', $filter_action);
         }
         if ($filter_user) {
             $this->db->where('al.user_id', $filter_user);
@@ -116,7 +116,7 @@ class Audit extends Admin_Controller {
             $this->db->where('al.table_name', $filter_module);
         }
         if ($filter_action) {
-            $this->db->where('al.activity_type', $filter_action);
+            $this->db->where('al.action', $filter_action);
         }
         if ($filter_user) {
             $this->db->where('al.user_id', $filter_user);
@@ -141,7 +141,7 @@ class Audit extends Admin_Controller {
         // Ordering
         $order_col = $this->input->get('order')[0]['column'] ?? 0;
         $order_dir = $this->input->get('order')[0]['dir'] ?? 'desc';
-        $columns = ['al.created_at', 'u.username', 'al.activity_type', 'al.table_name', 'al.description', 'al.ip_address'];
+        $columns = ['al.created_at', 'u.username', 'al.action', 'al.table_name', 'al.description', 'al.ip_address'];
         $this->db->order_by($columns[$order_col] ?? 'al.created_at', $order_dir);
         
         // Pagination
@@ -155,7 +155,7 @@ class Audit extends Admin_Controller {
             $nestedData = [];
             $nestedData[] = date('d M Y H:i:s', strtotime($row['created_at']));
             $nestedData[] = $row['username'] ? '<strong>' . htmlspecialchars($row['username']) . '</strong><br><small class="text-muted">' . $row['role'] . '</small>' : '<em class="text-muted">System</em>';
-            $nestedData[] = '<span class="badge bg-' . $this->_get_badge_color($row['activity_type']) . '">' . strtoupper(htmlspecialchars($row['activity_type'])) . '</span>';
+            $nestedData[] = '<span class="badge bg-' . $this->_get_badge_color($row['action']) . '">' . strtoupper(htmlspecialchars($row['action'])) . '</span>';
             $nestedData[] = htmlspecialchars($row['table_name'] ?? '-');
             $nestedData[] = '<small>' . htmlspecialchars(substr($row['description'], 0, 80)) . (strlen($row['description']) > 80 ? '...' : '') . '</small>';
             $nestedData[] = '<button class="btn btn-sm btn-outline-primary view-log" data-id="'.$row['id'].'" title="View Detail"><i class="fas fa-eye"></i></button>';
@@ -195,7 +195,7 @@ class Audit extends Admin_Controller {
                 'role' => $log->role ?? '-',
                 'ip_address' => $log->ip_address,
                 'user_agent' => $log->user_agent,
-                'activity_type' => $log->activity_type,
+                'action' => $log->action,
                 'table_name' => $log->table_name,
                 'record_id' => $log->record_id,
                 'description' => $log->description,
@@ -232,7 +232,7 @@ class Audit extends Admin_Controller {
             $this->db->where('al.table_name', $filter_module);
         }
         if ($filter_action) {
-            $this->db->where('al.activity_type', $filter_action);
+            $this->db->where('al.action', $filter_action);
         }
         if ($date_from) {
             $this->db->where('al.created_at >=', $date_from . ' 00:00:00');
@@ -279,7 +279,7 @@ class Audit extends Admin_Controller {
                 echo '<Cell><Data ss:Type="String">' . htmlspecialchars($log['created_at']) . '</Data></Cell>';
                 echo '<Cell><Data ss:Type="String">' . htmlspecialchars($log['username'] ?? 'System') . '</Data></Cell>';
                 echo '<Cell><Data ss:Type="String">' . htmlspecialchars($log['role'] ?? '-') . '</Data></Cell>';
-                echo '<Cell><Data ss:Type="String">' . htmlspecialchars($log['activity_type']) . '</Data></Cell>';
+                echo '<Cell><Data ss:Type="String">' . htmlspecialchars($log['action']) . '</Data></Cell>';
                 echo '<Cell><Data ss:Type="String">' . htmlspecialchars($log['table_name'] ?? '-') . '</Data></Cell>';
                 echo '<Cell><Data ss:Type="String">' . htmlspecialchars($log['description']) . '</Data></Cell>';
                 echo '<Cell><Data ss:Type="String">' . htmlspecialchars($log['ip_address']) . '</Data></Cell>';

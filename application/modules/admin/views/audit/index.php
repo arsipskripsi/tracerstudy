@@ -237,7 +237,7 @@ $(document).ready(function() {
                                     </tr>
                                     <tr>
                                         <th><i class="fas fa-tasks me-2"></i>Action Type</th>
-                                        <td><span class="badge bg-${getBadgeColor(data.activity_type)}">${escapeHtml(data.activity_type).toUpperCase()}</span></td>
+                                        <td><span class="badge bg-${getBadgeColor(data.action)}">${escapeHtml(data.action).toUpperCase()}</span></td>
                                     </tr>
                                     <tr>
                                         <th><i class="fas fa-database me-2"></i>Module</th>
