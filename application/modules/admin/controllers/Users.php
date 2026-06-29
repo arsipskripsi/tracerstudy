@@ -195,13 +195,20 @@ class Users extends Admin_Controller {
     }
     
     private function _get_role_badge($role) {
+        // Normalisasi role untuk memastikan kecocokan
+        $role = trim(strtolower($role));
+        
         $colors = [
             'super_admin' => 'danger',
             'admin_pusat_karir' => 'primary',
+            'admin_pusat' => 'primary', // Alias untuk kompatibilitas
+            'admin' => 'primary', // Alias untuk kompatibilitas
             'admin_prodi' => 'success',
+            'prodi_admin' => 'success', // Alias untuk kompatibilitas
             'alumni' => 'secondary',
             'stakeholder' => 'info'
         ];
-        return $colors[$role] ?? 'light';
+        
+        return isset($colors[$role]) ? $colors[$role] : 'light';
     }
 }
