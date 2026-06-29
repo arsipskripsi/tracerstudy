@@ -37,8 +37,8 @@ $route['auth/change-password']          = 'auth/auth/changePassword';
 | Admin Module Routes
 |--------------------------------------------------------------------------
 */
-$route['admin']                         = 'admin/audit/index';
-$route['admin/dashboard']               = 'admin/audit/index';
+$route['admin']                         = 'admin/dashboard/index';
+$route['admin/dashboard']               = 'admin/dashboard/index';
 $route['admin/audit']                   = 'admin/audit/index';
 $route['admin/audit/(:any)']            = 'admin/audit/$1';
 
