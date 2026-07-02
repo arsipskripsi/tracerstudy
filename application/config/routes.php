@@ -18,6 +18,7 @@ $route['translate_uri_dashes'] = FALSE;
 |--------------------------------------------------------------------------
 */
 $route['']              = 'public/home/index';
+$route['tracerstudy']   = 'public/home/index';
 $route['home']          = 'public/home/index';
 $route['about']         = 'public/home/about';
 $route['contact']       = 'public/home/contact';
