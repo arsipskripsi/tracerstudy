@@ -3,12 +3,7 @@
     <div class="row mb-4">
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h2 class="text-dark fw-bold mb-1">
-                        <i class="fas fa-users me-2"></i><?= htmlspecialchars($page_title) ?>
-                    </h2>
-                    <p class="text-muted mb-0"><?= htmlspecialchars($page_subtitle) ?></p>
-                </div>
+               
                 <div>
                     <a href="<?= site_url('prodi/alumni/add') ?>" class="btn btn-primary">
                         <i class="fas fa-plus me-2"></i>Tambah Alumni

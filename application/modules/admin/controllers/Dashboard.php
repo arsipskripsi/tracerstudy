@@ -11,8 +11,8 @@ class Dashboard extends Admin_Controller {
     public function __construct() {
         parent::__construct();
         
-        // Hanya super_admin dan admin_pusat_karir yang bisa akses
-        $this->auth_lib->requireRole(['super_admin', 'admin_pusat_karir']);
+         // Hanya super_admin, admin_pusat_karir, dan admin yang bisa akses
+        $this->auth_lib->requireRole(['super_admin', 'admin_pusat_karir', 'admin']);
         
         $this->load->model('auth/user_model');
         $this->load->helper('tracer_audit');
@@ -41,15 +41,17 @@ class Dashboard extends Admin_Controller {
         $this->db->where('role', 'admin_prodi');
         $data['total_admin_prodi'] = $this->db->count_all_results('users');
         
+		
         $this->db->where('role', 'admin_fakultas');
         $data['total_admin_fakultas'] = $this->db->count_all_results('users');
-        
+
         $this->db->where('role', 'dosen');
         $data['total_dosen'] = $this->db->count_all_results('users');
-        
+
         $this->db->where('role', 'reviewer');
         $data['total_reviewer'] = $this->db->count_all_results('users');
-        
+		
+		
         $this->db->where('role', 'alumni');
         $data['total_alumni_users'] = $this->db->count_all_results('users');
         

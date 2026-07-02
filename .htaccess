@@ -1,19 +1,25 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
+    
+    # Set base URL sesuai nama folder proyek Anda di htdocs/www
     RewriteBase /tracerstudy/
-    
-    # Redirect trailing slashes
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^(.*)/$ $1 [L,R=301]
-    
-    # Direct requests to index.php
+
+    # Mencegah akses langsung ke folder sistem dan aplikasi
+    RewriteCond %{REQUEST_URI} ^system.*
+    RewriteRule ^(.*)$ /index.php?/$1 [L]
+
+    RewriteCond %{REQUEST_URI} ^application.*
+    RewriteRule ^(.*)$ /index.php?/$1 [L]
+
+    # Jika file atau direktori fisik ada, akses langsung (untuk css, js, images, dll)
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^(.*)$ index.php/$1 [L,QSA]
+
+    # Selain itu, kirim semua request ke index.php
+    RewriteRule ^(.*)$ index.php?/$1 [L]
 </IfModule>
 
-# Prevent directory listing
-Options -Indexes
-
-# Default index files
-DirectoryIndex index.php
+# Jika mod_rewrite tidak aktif, pastikan tetap bisa akses index.php
+<IfModule !mod_rewrite.c>
+    ErrorDocument 404 /index.php
+</IfModule>

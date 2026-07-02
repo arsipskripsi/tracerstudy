@@ -65,24 +65,13 @@ if (!function_exists('audit_log')) {
     }
 }
 
-if (!function_exists('esc')) {
-    /**
-     * Fungsi esc() untuk kompatibilitas dengan CodeIgniter 4
-     * Meng-escape string untuk mencegah XSS
-     * 
-     * @param string $str String yang akan di-escape
-     * @return string String yang sudah di-escape
-     */
-    function esc($str) {
-        return htmlspecialchars($str, ENT_QUOTES, 'UTF-8');
-    }
-}
+
 
 if (!function_exists('log_activity')) {
     /**
      * Alias untuk audit_log - untuk kompatibilitas dengan kode lama
      * Mencatat aktivitas user ke dalam activity_logs
-     * 
+     *
      * @param int|null $user_id User ID (null = ambil dari session)
      * @param string $action Action type (create, update, delete, login, dll)
      * @param string $module Module/table name
@@ -92,21 +81,21 @@ if (!function_exists('log_activity')) {
      */
     function log_activity($user_id, $action, $module, $description, $ip_address = null) {
         $CI =& get_instance();
-        
+
         // Load dependencies jika belum
         $CI->load->database();
-        
+
         // Jika user_id tidak diberikan, coba ambil dari session
         if ($user_id === null && $CI->session->userdata('logged_in')) {
             $user_data = $CI->session->userdata('user_data');
             $user_id = $user_data['id'] ?? null;
         }
-        
+
         // Jika IP address tidak diberikan, ambil otomatis
         if ($ip_address === null) {
             $ip_address = $CI->input->ip_address();
         }
-        
+
         $data = [
             'user_id'    => $user_id,
             'action'     => $action,
@@ -118,7 +107,7 @@ if (!function_exists('log_activity')) {
             'ip_address' => $ip_address,
             'user_agent' => $CI->input->user_agent(),
         ];
-        
+
         try {
             $CI->db->insert('activity_logs', $data);
             return $CI->db->insert_id();

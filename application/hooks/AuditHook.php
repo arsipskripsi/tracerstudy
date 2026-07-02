@@ -72,12 +72,12 @@ class AuditHook {
      * Hanya mencatat request POST/PUT/DELETE yang mengubah data
      */
     public function log_activity() {
-        // Pastikan instance CI dan komponen yang diperlukan sudah terinisialisasi
+         // Pastikan instance CI dan komponen yang diperlukan sudah terinisialisasi
         if (!$this->CI || !isset($this->CI->uri) || !isset($this->CI->router)) {
             return;
         }
-        
-        $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+		
+		$method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
         if ($method === 'GET') {
             return;
         }

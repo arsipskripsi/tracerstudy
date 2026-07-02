@@ -27,6 +27,7 @@ $route['contact']       = 'public/home/contact';
 | Auth Module Routes
 |--------------------------------------------------------------------------
 */
+$route['']                              = 'auth/auth/login';
 $route['login']                         = 'auth/auth/login';
 $route['logout']                        = 'auth/auth/logout';
 
@@ -40,6 +41,9 @@ $route['auth/verify-email/(:any)']      = 'auth/auth/verifyEmail/$1';
 $route['auth/check-session']            = 'auth/auth/checkSession';
 $route['auth/profile']                  = 'auth/auth/profile';
 $route['auth/change-password']          = 'auth/auth/changePassword';
+
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -55,6 +59,9 @@ $route['prodi/laporan']                 = 'prodi/laporan/index';
 $route['prodi/laporan/(:any)']          = 'prodi/laporan/$1';
 $route['prodi/profile']                 = 'prodi/profile/index';
 $route['prodi/profile/change-password'] = 'prodi/profile/changePassword';
+
+
+
 
 /*
 |--------------------------------------------------------------------------

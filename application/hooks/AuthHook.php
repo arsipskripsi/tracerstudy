@@ -36,11 +36,13 @@ class AuthHook
      */
     public function check_auth()
     {
-        // Pastikan instance CI dan uri sudah terinisialisasi
+		 // Pastikan instance CI dan uri sudah terinisialisasi
         if (!$this->CI || !isset($this->CI->uri)) {
             return;
         }
-        
+
+
+
         $uri = $this->CI->uri->uri_string();
 
         // Definisi URI publik yang tidak perlu autentikasi
@@ -54,11 +56,11 @@ class AuthHook
             'auth/reset-password',
             'auth/auth/reset_password',
             'auth/verify-email',
+			'logout',
+			'auth/logout',
+            'auth/auth/logout',
             'auth/auth/verify_email',
             'auth/auth/verifyEmail',
-            'logout',
-            'auth/logout',
-            'auth/auth/logout',
             'stakeholder/verify',
             'stakeholder/stakeholder/verify',
         );
@@ -105,11 +107,13 @@ class AuthHook
      */
     public function set_user_data()
     {
-        // Pastikan instance CI dan session sudah terinisialisasi
+		
+		 // Pastikan instance CI dan session sudah terinisialisasi
         if (!$this->CI || !isset($this->CI->session)) {
             return;
         }
-
+		
+		
         if ($this->CI->session->has_userdata('user_id')) {
             $user_data = $this->CI->session->userdata('user_data');
 
