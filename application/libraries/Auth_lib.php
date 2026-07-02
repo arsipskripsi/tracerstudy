@@ -3,9 +3,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
  * Auth Library
- * 
+ *
  * Middleware untuk otorisasi dan pengecekan sesi
- * 
+ *
  * Features:
  * - checkRole($allowed_roles) - Middleware otorisasi berdasarkan role
  * - checkPermission($module, $action) - Granular permission check
@@ -29,13 +29,13 @@ class Auth_lib {
 
     /**
      * Check if user is logged in
-     * 
+     *
      * @return bool TRUE if logged in
      */
     public function isLoggedIn()
     {
         $logged_in = $this->CI->session->userdata('logged_in');
-        
+
         if (!$logged_in) {
             return FALSE;
         }
@@ -57,7 +57,7 @@ class Auth_lib {
 
     /**
      * Get current logged in user data
-     * 
+     *
      * @return object|FALSE User data or FALSE if not logged in
      */
     public function getCurrentUser()
@@ -67,7 +67,7 @@ class Auth_lib {
         }
 
         $user_id = $this->CI->session->userdata('user_id');
-        
+
         if (!$user_id) {
             return FALSE;
         }
@@ -77,7 +77,7 @@ class Auth_lib {
 
     /**
      * Check if current user has specified role(s)
-     * 
+     *
      * @param string|array $allowed_roles Single role or array of roles
      * @return bool TRUE if user has one of the allowed roles
      */
@@ -98,7 +98,7 @@ class Auth_lib {
 
     /**
      * Check if current user has permission for module/action
-     * 
+     *
      * @param string $module Module name
      * @param string $action Action name (create, read, update, delete)
      * @return bool TRUE if user has permission
@@ -110,13 +110,13 @@ class Auth_lib {
         }
 
         $user_id = $this->CI->session->userdata('user_id');
-        
+
         return $this->CI->User_model->hasPermission($user_id, $module, $action);
     }
 
     /**
      * Check if current user has access to specific prodi
-     * 
+     *
      * @param int $prodi_id Prodi ID
      * @return bool TRUE if user has access
      */
@@ -127,13 +127,13 @@ class Auth_lib {
         }
 
         $user_id = $this->CI->session->userdata('user_id');
-        
+
         return $this->CI->User_model->hasProdiAccess($user_id, $prodi_id);
     }
 
     /**
      * Require login - redirect to login if not authenticated
-     * 
+     *
      * Usage: Call this in controller constructor
      */
     public function requireLogin()
@@ -147,7 +147,7 @@ class Auth_lib {
 
     /**
      * Require specific role(s) - redirect if role not allowed
-     * 
+     *
      * @param string|array $roles Required role(s)
      * @param string $redirect_url URL to redirect if not authorized (default: dashboard)
      */
@@ -157,7 +157,7 @@ class Auth_lib {
 
         if (!$this->checkRole($roles)) {
             $this->CI->session->set_flashdata('error', 'Anda tidak memiliki akses ke halaman ini.');
-            
+
             if ($redirect_url) {
                 redirect($redirect_url);
                 exit;
@@ -170,7 +170,7 @@ class Auth_lib {
 
     /**
      * Require permission - redirect if not authorized
-     * 
+     *
      * @param string $module Module name
      * @param string $action Action name
      * @param string $redirect_url URL to redirect if not authorized
@@ -181,7 +181,7 @@ class Auth_lib {
 
         if (!$this->checkPermission($module, $action)) {
             $this->CI->session->set_flashdata('error', 'Anda tidak memiliki izin untuk melakukan aksi ini.');
-            
+
             if ($redirect_url) {
                 redirect($redirect_url);
             } else {
@@ -192,7 +192,7 @@ class Auth_lib {
 
     /**
      * Require prodi access - redirect if no access
-     * 
+     *
      * @param int $prodi_id Prodi ID
      * @param string $redirect_url URL to redirect if not authorized
      */
@@ -202,7 +202,7 @@ class Auth_lib {
 
         if (!$this->hasProdiAccess($prodi_id)) {
             $this->CI->session->set_flashdata('error', 'Anda tidak memiliki akses ke program studi ini.');
-            
+
             if ($redirect_url) {
                 redirect($redirect_url);
             } else {
@@ -214,7 +214,7 @@ class Auth_lib {
     /**
      * Check if alumni email is verified
      * BR-ALM-005: Alumni belum verifikasi email boleh isi survey tapi tidak masuk IKU
-     * 
+     *
      * @return bool TRUE if email is verified
      */
     public function isEmailVerified()
@@ -228,7 +228,7 @@ class Auth_lib {
 
     /**
      * Get current user role
-     * 
+     *
      * @return string|FALSE Role name or FALSE if not logged in
      */
     public function getRole()
@@ -242,7 +242,7 @@ class Auth_lib {
 
     /**
      * Get current user ID
-     * 
+     *
      * @return int|FALSE User ID or FALSE if not logged in
      */
     public function getUserId()
@@ -264,19 +264,19 @@ class Auth_lib {
 
     /**
      * Get default dashboard URL based on role
-     * 
+     *
      * @return string Dashboard URL
      */
     private function _getDefaultDashboard()
     {
         $role = $this->CI->session->userdata('role');
-        
+
         switch ($role) {
             case 'super_admin':
             case 'admin_pusat_karir':
                 return 'admin/dashboard';
             case 'admin_prodi':
-            case 'admin_fakultas':
+			case 'admin_fakultas':
             case 'dosen':
                 return 'prodi/dashboard';
             case 'alumni':
@@ -305,7 +305,7 @@ class Auth_lib {
 
     /**
      * Get session remaining time
-     * 
+     *
      * @return int Remaining seconds before timeout
      */
     public function getSessionRemainingTime()

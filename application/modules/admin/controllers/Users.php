@@ -123,7 +123,8 @@ class Users extends Admin_Controller {
             }
         }
         
-        $data['roles'] = ['super_admin', 'admin_pusat_karir', 'admin_prodi', 'admin_fakultas', 'dosen', 'reviewer'];
+         
+		 $data['roles'] = ['super_admin', 'admin_pusat_karir', 'admin_prodi', 'admin_fakultas', 'dosen', 'reviewer'];
         
         $this->load->view('admin/templates/header', $data);
         $this->load->view('admin/users/form', $data);
@@ -171,16 +172,17 @@ class Users extends Admin_Controller {
         }
         
         $data['user'] = $user;
-        
-        // Ambil semua role yang unik dari database, termasuk role user yang sedang diedit
+         // Ambil semua role yang unik dari database, termasuk role user yang sedang diedit
         $this->db->select('role', FALSE);
         $this->db->distinct();
         $roles_query = $this->db->get('users');
         $db_roles = $roles_query->result_array();
         $db_roles = array_column($db_roles, 'role');
-        
+
         // Tambahkan role standar untuk admin
-        $standard_roles = ['super_admin', 'admin_pusat_karir', 'admin_prodi', 'admin_fakultas', 'dosen', 'reviewer'];
+         
+		 $standard_roles = ['super_admin', 'admin_pusat_karir', 'admin_prodi', 'admin_fakultas', 'dosen', 'reviewer'];
+		
         $data['roles'] = array_unique(array_merge($standard_roles, $db_roles));
         sort($data['roles']);
         
@@ -206,9 +208,9 @@ class Users extends Admin_Controller {
     }
     
     private function _get_role_badge($role) {
-        // Normalisasi role untuk memastikan kecocokan
+       // Normalisasi role untuk memastikan kecocokan
         $role = trim(strtolower($role));
-        
+
         $colors = [
             'super_admin' => 'danger',
             'admin_pusat_karir' => 'primary',
@@ -216,13 +218,10 @@ class Users extends Admin_Controller {
             'admin' => 'primary', // Alias untuk kompatibilitas
             'admin_prodi' => 'success',
             'prodi_admin' => 'success', // Alias untuk kompatibilitas
-            'admin_fakultas' => 'info',
-            'dosen' => 'teal',
-            'reviewer' => 'purple',
             'alumni' => 'secondary',
             'stakeholder' => 'info'
         ];
-        
+
         return isset($colors[$role]) ? $colors[$role] : 'light';
     }
 }

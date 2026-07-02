@@ -1,13 +1,5 @@
 <div class="container-fluid">
-    <!-- Page Title -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <h2 class="text-dark fw-bold">
-                <i class="fas fa-tachometer-alt me-2"></i><?= htmlspecialchars($page_title) ?>
-            </h2>
-            <p class="text-muted"><?= htmlspecialchars($page_subtitle) ?></p>
-        </div>
-    </div>
+    
 
     <!-- Prodi Info Card -->
     <?php if ($prodi_info): ?>
@@ -22,7 +14,7 @@
                             </div>
                         </div>
                         <div class="flex-grow-1 ms-3">
-                            <h5 class="mb-1 text-dark"><?= htmlspecialchars($prodi_info['nama_prodi'] ?? $prodi_info['nama'] ?? 'Nama Prodi Tidak Ditemukan') ?></h5>
+                           <h5 class="mb-1 text-dark"><?= htmlspecialchars($prodi_info['nama_prodi'] ?? $prodi_info['nama'] ?? 'Nama Prodi Tidak Ditemukan') ?></h5>
                             <p class="text-muted mb-0 small">Kode Prodi: <?= htmlspecialchars($prodi_info['kode_prodi'] ?? $prodi_info['kode'] ?? 'N/A') ?></p>
                         </div>
                     </div>
@@ -204,9 +196,9 @@
                                     <td>
                                         <span class="badge bg-secondary"><?= htmlspecialchars($activity['username'] ?? 'System') ?></span>
                                     </td>
-                                    <td><?= htmlspecialchars($activity['activity'] ?? '-') ?></td>
+                                     <td><?= htmlspecialchars($activity['activity'] ?? '-') ?></td>
                                     <td>
-                                        <span class="badge bg-primary"><?= htmlspecialchars($activity['module'] ?? '-') ?></span>
+                                         <span class="badge bg-primary"><?= htmlspecialchars($activity['module'] ?? '-') ?></span>
                                     </td>
                                 </tr>
                                 <?php endforeach; ?>

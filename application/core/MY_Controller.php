@@ -13,10 +13,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  * @author      Tracer Study Team
  */
 
+
 // Load custom core controllers
 if (file_exists(APPPATH.'core/MY_Prodi_Controller.php')) {
     require_once APPPATH.'core/MY_Prodi_Controller.php';
 }
+ 
 
 class MY_Controller extends CI_Controller
 {
@@ -185,7 +187,9 @@ class Admin_Controller extends MY_Controller
     public function __construct()
     {
         parent::__construct();
-
+		
+		
+      
         // Set header untuk mencegah caching
         $this->output->set_header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
         $this->output->set_header('Pragma: no-cache');
@@ -205,7 +209,6 @@ class Admin_Controller extends MY_Controller
 
         if (!in_array($user_role, $admin_roles)) {
             show_error('Akses ditolak. Anda tidak memiliki hak akses ke halaman ini.', 403);
-            exit;
         }
 
         $this->data['page_title'] = 'Admin Panel';

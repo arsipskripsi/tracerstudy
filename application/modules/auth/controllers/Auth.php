@@ -3,9 +3,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
  * Auth Controller
- * 
+ *
  * Menangani autentikasi multi-role dengan rate limiting, forgot password, dan email verification
- * 
+ *
  * Business Rules:
  * - BR-SEC-004: Session timeout 30 menit idle, extend saat isi survey (heartbeat)
  * - BR-SEC-005: Rate limit login 5 attempt per IP per menit, lock 30 menit
@@ -24,12 +24,13 @@ class Auth extends MY_Controller {
         $this->load->library('form_validation');
         $this->load->library('tracer_encryption');
         $this->load->helper('date');
-        
+
         // Jika sudah login, redirect ke dashboard sesuai role
         // Kecuali sedang logout (untuk menghindari redirect loop)
         $uri = $this->uri->uri_string();
         if ($this->auth_lib->isLoggedIn() && strpos($uri, 'logout') === FALSE) {
             redirect($this->_get_dashboard_url());
+           
         }
     }
 
@@ -44,7 +45,7 @@ class Auth extends MY_Controller {
 
     /**
      * Halaman Login
-     * 
+     *
      * BR-SEC-005: Rate limit login 5 attempt per IP per menit
      */
     public function login()
@@ -58,7 +59,7 @@ class Auth extends MY_Controller {
 
             // Cek rate limiting
             if ($this->_is_rate_limited($ip_address, $username)) {
-                $this->session->set_flashdata('error', 
+                $this->session->set_flashdata('error',
                     'Terlalu banyak percobaan login. Silakan coba lagi dalam 30 menit.');
                 redirect('login');
             }
@@ -130,10 +131,10 @@ class Auth extends MY_Controller {
         $ip_address = $this->input->ip_address();
 
         if ($user_id) {
-            // Cek apakah user masih ada di database sebelum log activity
+           // Cek apakah user masih ada di database sebelum log activity
             $this->load->model('auth/User_model');
             $user = $this->User_model->getUserById($user_id);
-            
+
             if ($user) {
                 $this->_log_activity($user_id, 'logout', 'Logout berhasil', $ip_address);
             } else {
@@ -144,17 +145,17 @@ class Auth extends MY_Controller {
 
         // Hapus semua data session
         $this->session->sess_destroy();
-        
+
         // Hapus cache output untuk mencegah halaman ter-cache
         $this->output->set_header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
         $this->output->set_header('Pragma: no-cache');
         $this->output->set_header('Expires: 0');
-        
+
         // Pastikan tidak ada output lain yang dikirim
         if (ob_get_level()) {
             ob_end_clean();
         }
-        
+
         // Redirect ke halaman login dengan exit untuk memastikan script berhenti
         redirect(site_url('login'), 'location');
         exit;
@@ -192,11 +193,11 @@ class Auth extends MY_Controller {
                 $reset_link = site_url("reset-password/{$reset_token}");
                 $this->_sendResetEmail($user->email, $user->username, $reset_link);
 
-                $this->session->set_flashdata('success', 
+                $this->session->set_flashdata('success',
                     'Link reset password telah dikirim ke email Anda. Berlaku selama 1 jam.');
             } else {
                 // Jangan beri tahu apakah email terdaftar atau tidak (security)
-                $this->session->set_flashdata('success', 
+                $this->session->set_flashdata('success',
                     'Jika email terdaftar, link reset password telah dikirim.');
             }
 
@@ -268,7 +269,7 @@ class Auth extends MY_Controller {
             // Activate user
             if ($this->User_model->verifyEmail($user->id)) {
                 $this->session->set_flashdata('success', 'Email berhasil diverifikasi. Silakan login.');
-                
+
                 // Log activity
                 $this->_log_activity($user->id, 'email_verified', 'Email berhasil diverifikasi', $this->input->ip_address());
             } else {
@@ -284,7 +285,7 @@ class Auth extends MY_Controller {
     /**
      * Check Session Heartbeat
      * Extend session saat user masih aktif (misal saat isi survey)
-     * 
+     *
      * BR-SEC-004: Session timeout 30 menit idle
      */
     public function checkSession()
@@ -299,23 +300,23 @@ class Auth extends MY_Controller {
 
     /**
      * Cek rate limiting login
-     * 
+     *
      * BR-SEC-005: Max 5 attempt per IP per menit, lock 30 menit
      */
     private function _is_rate_limited($ip_address, $username)
     {
         $this->load->database();
-        
+
         // Hitung jumlah attempt dalam 30 menit terakhir (sesuai lockout_duration)
         // PERBAIKAN: Sesuaikan nama kolom dengan schema tabel login_attempts
         $lockout_ago = date('Y-m-d H:i:s', strtotime('-' . $this->lockout_duration . ' seconds'));
-        
+
         $this->db->where('ip_address', $ip_address);
         $this->db->where('attempted_at >=', $lockout_ago);
         $query = $this->db->get('login_attempts');
-        
+
         $attempt_count = $query->num_rows();
-        
+
         return ($attempt_count >= $this->max_login_attempts);
     }
 
@@ -325,21 +326,21 @@ class Auth extends MY_Controller {
     private function _record_login_attempt($ip_address, $username, $success)
     {
         $this->load->database();
-        
+
         // PERBAIKAN: Sesuaikan kolom dengan schema tabel login_attempts
         // ip_address VARBINARY(16) - simpan sebagai inet_pton() atau string
         // login_type ENUM('email','username') - deteksi berdasarkan format
         $login_type = (strpos($username, '@') !== FALSE) ? 'email' : 'username';
-        
+
         $data = [
             'ip_address'        => $ip_address,
             'login_type'        => $login_type,
             'login_identifier'  => substr($username, 0, 100),
             'user_agent'        => $this->input->user_agent()
         ];
-        
+
         $this->db->insert('login_attempts', $data);
-        
+
         // Cleanup records lebih dari 24 jam
         $this->db->where('attempted_at <', date('Y-m-d H:i:s', strtotime('-24 hours')));
         $this->db->delete('login_attempts');
@@ -351,7 +352,7 @@ class Auth extends MY_Controller {
     private function _log_activity($user_id, $activity_type, $description, $ip_address = NULL)
     {
         $this->load->database();
-        
+
         // PERBAIKAN: Sesuaikan kolom dengan schema tabel activity_logs
         $data = [
             'user_id'    => $user_id,
@@ -362,7 +363,7 @@ class Auth extends MY_Controller {
             'ip_address' => $ip_address ?: $this->input->ip_address(),
             'user_agent' => $this->input->user_agent(),
         ];
-        
+
         $this->db->insert('activity_logs', $data);
     }
 
@@ -372,7 +373,7 @@ class Auth extends MY_Controller {
     private function _sendResetEmail($to, $username, $reset_link)
     {
         $this->load->library('email');
-        
+
         $config['protocol'] = 'smtp';
         $config['smtp_host'] = $this->config->item('smtp_host');
         $config['smtp_port'] = $this->config->item('smtp_port');
@@ -381,22 +382,22 @@ class Auth extends MY_Controller {
         $config['mailtype'] = 'html';
         $config['charset'] = 'utf-8';
         $config['newline'] = "\r\n";
-        
+
         $this->email->initialize($config);
         $this->email->from('noreply@tracerstudy.edu', 'Tracer Study System');
         $this->email->to($to);
         $this->email->subject('Reset Password - Tracer Study');
-        
+
         $message = "
         <html>
         <head>
             <style>
                 body { font-family: Arial, sans-serif; }
-                .button { 
-                    background-color: #007bff; 
-                    color: white; 
-                    padding: 10px 20px; 
-                    text-decoration: none; 
+                .button {
+                    background-color: #007bff;
+                    color: white;
+                    padding: 10px 20px;
+                    text-decoration: none;
                     border-radius: 5px;
                 }
             </style>
@@ -414,7 +415,7 @@ class Auth extends MY_Controller {
         </body>
         </html>
         ";
-        
+
         $this->email->message($message);
         $this->email->send();
     }
@@ -425,13 +426,13 @@ class Auth extends MY_Controller {
     private function _get_dashboard_url()
     {
         $role = $this->session->userdata('role');
-        
+
         switch ($role) {
             case 'super_admin':
             case 'admin_pusat_karir':
                 return 'admin/dashboard';
             case 'admin_prodi':
-            case 'admin_fakultas':
+			case 'admin_fakultas':
             case 'dosen':
                 return 'prodi/dashboard';
             case 'alumni':

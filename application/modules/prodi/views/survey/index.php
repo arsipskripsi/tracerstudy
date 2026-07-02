@@ -1,13 +1,5 @@
 <div class="container-fluid">
-    <!-- Page Title -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <h2 class="text-dark fw-bold mb-1">
-                <i class="fas fa-clipboard-list me-2"></i><?= htmlspecialchars($page_title) ?>
-            </h2>
-            <p class="text-muted mb-0"><?= htmlspecialchars($page_subtitle) ?></p>
-        </div>
-    </div>
+   
 
     <!-- Surveys Grid -->
     <?php if (!empty($surveys)): ?>

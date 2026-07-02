@@ -44,18 +44,18 @@ class User_model extends MY_Model {
      */
     public function getUserById($id)
     {
-        $this->db->where($this->primary_key, $id);
+          $this->db->where($this->primary_key, $id);
         if ($this->soft_delete) {
             $this->db->where($this->deleted_field, NULL);
         }
         $query = $this->db->get($this->table_name);
         $user = $query->row();
-        
+
         // Pastikan selalu mengembalikan object
         if (is_array($user)) {
             return (object) $user;
         }
-        
+
         return $user;
     }
 
@@ -228,7 +228,7 @@ class User_model extends MY_Model {
             return TRUE;
         }
 
-        if (in_array($user->role, array('admin_prodi', 'admin_fakultas', 'dosen'))) {
+        if (in_array($user->role, array('admin_prodi', 'dosen'))) {
             if ($user->profile_id == $prodi_id) {
                 return TRUE;
             }
@@ -288,14 +288,6 @@ class User_model extends MY_Model {
                 'survey'      => array('read'),
                 'iku'         => array('read'),
                 'kurikulum'   => array('create', 'read', 'update'),
-                'laporan'     => array('read', 'export'),
-                'stakeholder' => array('read')
-            ),
-            'admin_fakultas' => array(
-                'alumni'      => array('read', 'export'),
-                'survey'      => array('read'),
-                'iku'         => array('read'),
-                'kurikulum'   => array('read'),
                 'laporan'     => array('read', 'export'),
                 'stakeholder' => array('read')
             ),
