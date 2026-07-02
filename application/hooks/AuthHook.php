@@ -36,12 +36,10 @@ class AuthHook
      */
     public function check_auth()
     {
-		 // Pastikan instance CI dan uri sudah terinisialisasi
+        // Pastikan instance CI dan uri sudah terinisialisasi
         if (!$this->CI || !isset($this->CI->uri)) {
             return;
         }
-
-
 
         $uri = $this->CI->uri->uri_string();
 
@@ -56,16 +54,21 @@ class AuthHook
             'auth/reset-password',
             'auth/auth/reset_password',
             'auth/verify-email',
-			'logout',
-			'auth/logout',
+            'logout',
+            'auth/logout',
             'auth/auth/logout',
             'auth/auth/verify_email',
             'auth/auth/verifyEmail',
             'stakeholder/verify',
             'stakeholder/stakeholder/verify',
+            'public',
+            'public/home',
+            'home',
+            'about',
+            'contact',
         );
 
-        // Juga izinkan akses ke root / default controller (redirect ke login)
+        // Juga izinkan akses ke root / default controller
         if (empty($uri) || $uri === '/') {
             return;
         }
@@ -77,7 +80,7 @@ class AuthHook
         }
 
         // Cek apakah sudah login
-        $is_logged_in = $this->CI->session->has_userdata('user_id') 
+        $is_logged_in = $this->CI->session->has_userdata('user_id')
                         && $this->CI->session->userdata('logged_in');
 
         if (!$is_logged_in) {
@@ -107,13 +110,11 @@ class AuthHook
      */
     public function set_user_data()
     {
-		
-		 // Pastikan instance CI dan session sudah terinisialisasi
+        // Pastikan instance CI dan session sudah terinisialisasi
         if (!$this->CI || !isset($this->CI->session)) {
             return;
         }
-		
-		
+
         if ($this->CI->session->has_userdata('user_id')) {
             $user_data = $this->CI->session->userdata('user_data');
 
