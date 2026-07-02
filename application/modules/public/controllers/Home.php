@@ -7,7 +7,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  * Halaman publik yang menampilkan informasi tentang sistem Tracer Study
  * tanpa memerlukan login.
  */
-class Home extends MX_Controller {
+class Home extends Public_Controller {
 
     public function __construct()
     {
