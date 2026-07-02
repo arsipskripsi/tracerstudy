@@ -27,7 +27,8 @@ $route['contact']       = 'public/home/contact';
 | Auth Module Routes
 |--------------------------------------------------------------------------
 */
-$route['']                              = 'auth/auth/login';
+// Route kosong sudah dihandle di atas untuk public/home
+// User akan diarahkan ke login via hook jika belum login saat akses modul lain
 $route['login']                         = 'auth/auth/login';
 $route['logout']                        = 'auth/auth/logout';
 
