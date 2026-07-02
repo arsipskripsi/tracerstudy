@@ -20,7 +20,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 | Please refer to that file's documentation for more information.
 |--------------------------------------------------------------------------
 */
-$config['base_url'] = 'http://localhost/tracerstudy/'; 
+$config['base_url'] = ''; 
 
 /*
 |--------------------------------------------------------------------------

@@ -1,47 +1,27 @@
 ```
-# Dependency directories
-vendor/
-
 # Logs
-application/logs/*.php
+application/logs/
+*.log
 
-# Environment-specific files (if any .env files appear later)
+# Environment
 .env
 .env.local
 .env.*
 
-# OS generated files
-.DS_Store
-Thumbs.db
+# Dependencies
+vendor/
+node_modules/
+composer.lock
 
-# Editor/IDE files
+# Editors
 .vscode/
 .idea/
+
+# Temp files
+*.tmp
 *.swp
-*.swo
 
-# Compressed archives
-*.zip
-*.gz
-*.tar
-*.tgz
-*.bz2
-*.xz
-*.7z
-*.rar
-*.zst
-*.lz4
-*.lzh
-*.cab
-*.arj
-*.rpm
-*.deb
-*.Z
-*.lz
-*.lzo
-*.tar.gz
-*.tar.bz2
-*.tar.xz
-*.tar.zst
-
+# OS files
+.DS_Store
+Thumbs.db
 ```
