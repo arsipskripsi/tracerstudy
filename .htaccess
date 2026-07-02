@@ -1,25 +1,18 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
     
-    # Set base URL - kosongkan jika di root, atau sesuaikan dengan folder proyek
+    # Set base URL - sesuaikan dengan lokasi folder proyek Anda
+    # Jika di root: RewriteBase /
+    # Jika di subfolder: RewriteBase /nama_folder/
     RewriteBase /
 
-    # Mencegah akses langsung ke folder sistem dan aplikasi
-    RewriteCond %{REQUEST_URI} ^system.*
-    RewriteRule ^(.*)$ /index.php?/$1 [QSA,L]
-
-    RewriteCond %{REQUEST_URI} ^application.*
-    RewriteRule ^(.*)$ /index.php?/$1 [QSA,L]
-
-    # Jika file atau direktori fisik ada, akses langsung (untuk css, js, images, dll)
+    # Redirect langsung ke index.php untuk semua request
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
-
-    # Selain itu, kirim semua request ke index.php
-    RewriteRule ^(.*)$ index.php?/$1 [QSA,L]
+    RewriteRule ^(.*)$ index.php/$1 [QSA,L]
 </IfModule>
 
-# Jika mod_rewrite tidak aktif, pastikan tetap bisa akses index.php
+# Jika mod_rewrite tidak aktif
 <IfModule !mod_rewrite.c>
     ErrorDocument 404 /index.php
 </IfModule>
