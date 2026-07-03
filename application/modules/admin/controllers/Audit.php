@@ -36,12 +36,14 @@ class Audit extends Admin_Controller {
         $this->db->distinct();
         $this->db->where('table_name IS NOT NULL');
         $this->db->where('table_name !=', '');
+        $this->db->order_by('table_name', 'ASC');
         $modules = $this->db->get('activity_logs')->result_array();
         $data['modules'] = array_column($modules, 'table_name');
         
         // Ambil list action unik
         $this->db->select('action');
         $this->db->distinct();
+        $this->db->order_by('action', 'ASC');
         $actions = $this->db->get('activity_logs')->result_array();
         $data['actions'] = array_column($actions, 'action');
         
@@ -77,13 +79,10 @@ class Audit extends Admin_Controller {
         $date_from = $this->input->get('date_from');
         $date_to = $this->input->get('date_to');
 
-        // Build query utama
-        $this->db->select('al.*, u.username, u.role');
+        // Build query untuk total records (tanpa filter apapun)
+        $this->db->select('al.id');
         $this->db->from('activity_logs al');
-        $this->db->join('users u', 'al.user_id = u.id', 'left');
-
-        // Hitung total records (tanpa filter apapun)
-        $total_records = $this->db->count_all_results('activity_logs');
+        $total_records = $this->db->count_all_results();
         
         // Reset dan rebuild query untuk apply filters
         $this->db->reset_query();
@@ -111,7 +110,7 @@ class Audit extends Admin_Controller {
         // Global search
         if (!empty($search)) {
             $this->db->group_start();
-            $this->db->like('al.description', $search);
+            $this->db->like('al.new_values', $search);
             $this->db->or_like('u.username', $search);
             $this->db->or_like('al.table_name', $search);
             $this->db->or_like('al.ip_address', $search);
@@ -119,37 +118,7 @@ class Audit extends Admin_Controller {
         }
 
         // Hitung filtered records - perlu rebuild query karena count_all_results mengubah state
-        $this->db->reset_query();
-        $this->db->select('al.*, u.username, u.role');
-        $this->db->from('activity_logs al');
-        $this->db->join('users u', 'al.user_id = u.id', 'left');
-        
-        // Re-apply filters untuk count
-        if ($filter_module) {
-            $this->db->where('al.table_name', $filter_module);
-        }
-        if ($filter_action) {
-            $this->db->where('al.action', $filter_action);
-        }
-        if ($filter_user) {
-            $this->db->where('al.user_id', $filter_user);
-        }
-        if ($date_from) {
-            $this->db->where('al.created_at >=', $date_from . ' 00:00:00');
-        }
-        if ($date_to) {
-            $this->db->where('al.created_at <=', $date_to . ' 23:59:59');
-        }
-        if (!empty($search)) {
-            $this->db->group_start();
-            $this->db->like('al.description', $search);
-            $this->db->or_like('u.username', $search);
-            $this->db->or_like('al.table_name', $search);
-            $this->db->or_like('al.ip_address', $search);
-            $this->db->group_end();
-        }
-        
-        $filtered_records = $this->db->count_all_results('', false);
+        $filtered_records = $this->db->count_all_results();
         
         // Reset lagi dan rebuild untuk query utama (dengan order dan limit)
         $this->db->reset_query();
@@ -175,7 +144,7 @@ class Audit extends Admin_Controller {
         }
         if (!empty($search)) {
             $this->db->group_start();
-            $this->db->like('al.description', $search);
+            $this->db->like('al.new_values', $search);
             $this->db->or_like('u.username', $search);
             $this->db->or_like('al.table_name', $search);
             $this->db->or_like('al.ip_address', $search);
@@ -185,7 +154,7 @@ class Audit extends Admin_Controller {
         // Ordering
         $order_col = $this->input->get('order')[0]['column'] ?? 0;
         $order_dir = $this->input->get('order')[0]['dir'] ?? 'desc';
-        $columns = ['al.created_at', 'u.username', 'al.action', 'al.table_name', 'al.description', 'al.ip_address'];
+        $columns = ['al.created_at', 'u.username', 'al.action', 'al.table_name', 'al.new_values', 'al.ip_address'];
         $this->db->order_by($columns[$order_col] ?? 'al.created_at', $order_dir);
         
         // Pagination
@@ -201,7 +170,18 @@ class Audit extends Admin_Controller {
             $nestedData[] = $row['username'] ? '<strong>' . htmlspecialchars($row['username']) . '</strong><br><small class="text-muted">' . $row['role'] . '</small>' : '<em class="text-muted">System</em>';
             $nestedData[] = '<span class="badge bg-' . $this->_get_badge_color($row['action']) . '">' . strtoupper(htmlspecialchars($row['action'])) . '</span>';
             $nestedData[] = htmlspecialchars($row['table_name'] ?? '-');
-            $nestedData[] = '<small>' . htmlspecialchars(substr($row['description'], 0, 80)) . (strlen($row['description']) > 80 ? '...' : '') . '</small>';
+            
+            // Extract description from new_values JSON
+            $description = '-';
+            if (!empty($row['new_values'])) {
+                $decoded = json_decode($row['new_values'], true);
+                if (is_array($decoded)) {
+                    $description = $decoded['description'] ?? json_encode($decoded, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                } else {
+                    $description = $row['new_values'];
+                }
+            }
+            $nestedData[] = '<small>' . htmlspecialchars(substr($description, 0, 80)) . (strlen($description) > 80 ? '...' : '') . '</small>';
             $nestedData[] = '<button class="btn btn-sm btn-outline-primary view-log" data-id="'.$row['id'].'" title="View Detail"><i class="fas fa-eye"></i></button>';
             $data[] = $nestedData;
         }
@@ -242,7 +222,7 @@ class Audit extends Admin_Controller {
                 'action' => $log->action,
                 'table_name' => $log->table_name,
                 'record_id' => $log->record_id,
-                'description' => $log->description,
+                'description' => $log->new_values,
                 'old_values' => $log->old_values,
                 'new_values' => $log->new_values
             ]
@@ -323,13 +303,24 @@ class Audit extends Admin_Controller {
             echo '</Row>';
             
             foreach ($logs as $log) {
+                // Extract description from new_values JSON for export
+                $description = '-';
+                if (!empty($log['new_values'])) {
+                    $decoded = json_decode($log['new_values'], true);
+                    if (is_array($decoded)) {
+                        $description = $decoded['description'] ?? json_encode($decoded, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                    } else {
+                        $description = $log['new_values'];
+                    }
+                }
+                
                 echo '<Row>';
                 echo '<Cell><Data ss:Type="String">' . htmlspecialchars($log['created_at']) . '</Data></Cell>';
                 echo '<Cell><Data ss:Type="String">' . htmlspecialchars($log['username'] ?? 'System') . '</Data></Cell>';
                 echo '<Cell><Data ss:Type="String">' . htmlspecialchars($log['role'] ?? '-') . '</Data></Cell>';
                 echo '<Cell><Data ss:Type="String">' . htmlspecialchars($log['action']) . '</Data></Cell>';
                 echo '<Cell><Data ss:Type="String">' . htmlspecialchars($log['table_name'] ?? '-') . '</Data></Cell>';
-                echo '<Cell><Data ss:Type="String">' . htmlspecialchars($log['description']) . '</Data></Cell>';
+                echo '<Cell><Data ss:Type="String">' . htmlspecialchars($description) . '</Data></Cell>';
                 echo '<Cell><Data ss:Type="String">' . htmlspecialchars($log['ip_address']) . '</Data></Cell>';
                 echo '</Row>';
             }

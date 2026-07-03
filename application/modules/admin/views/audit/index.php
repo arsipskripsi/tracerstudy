@@ -171,6 +171,10 @@ $(document).ready(function() {
                 d.user_id = $('#filter_user').val();
                 d.date_from = $('#date_from').val();
                 d.date_to = $('#date_to').val();
+            },
+            error: function(xhr, error, thrown) {
+                console.error('AJAX Error:', error);
+                console.error('Response:', xhr.responseText);
             }
         },
         columns: [
@@ -400,13 +404,3 @@ pre {
     font-size: 0.85rem;
 }
 </style>
-
-    </div>
-</div>
-
-<script>
-// Toggle sidebar untuk mobile
-document.getElementById('sidebarToggle')?.addEventListener('click', function() {
-    document.getElementById('sidebar').classList.toggle('active');
-});
-</script>
