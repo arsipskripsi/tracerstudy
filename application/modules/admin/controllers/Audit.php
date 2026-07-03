@@ -45,6 +45,13 @@ class Audit extends Admin_Controller {
         $actions = $this->db->get('activity_logs')->result_array();
         $data['actions'] = array_column($actions, 'action');
         
+        // Ambil list user untuk dropdown filter
+        $this->db->select('id, username');
+        $this->db->from('users');
+        $this->db->order_by('username', 'ASC');
+        $users = $this->db->get()->result_array();
+        $data['users'] = $users;
+        
         // Load view
         $this->load->view('admin/templates/header', $data);
         $this->load->view('admin/audit/index', $data);
@@ -220,6 +227,7 @@ class Audit extends Admin_Controller {
         // Get filters
         $filter_module = $this->input->get('module');
         $filter_action = $this->input->get('action');
+        $filter_user = $this->input->get('user_id');
         $date_from = $this->input->get('date_from');
         $date_to = $this->input->get('date_to');
 
@@ -233,6 +241,9 @@ class Audit extends Admin_Controller {
         }
         if ($filter_action) {
             $this->db->where('al.action', $filter_action);
+        }
+        if ($filter_user) {
+            $this->db->where('al.user_id', $filter_user);
         }
         if ($date_from) {
             $this->db->where('al.created_at >=', $date_from . ' 00:00:00');
