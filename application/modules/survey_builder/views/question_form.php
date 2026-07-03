@@ -26,7 +26,7 @@
                         <h5 class="mb-0"><i class="fa fa-edit"></i> Form Pertanyaan</h5>
                     </div>
                     <div class="card-body">
-                        <?= form_open('survey_question/store/' . $survey->id, ['id' => 'questionForm']) ?>
+                        <?= form_open('survey/question/store/' . $survey->id, ['id' => 'questionForm']) ?>
                             <div class="form-group">
                                 <label for="question_text">Teks Pertanyaan *</label>
                                 <textarea name="question_text" id="question_text" class="form-control" rows="3" required placeholder="Masukkan teks pertanyaan"></textarea>
