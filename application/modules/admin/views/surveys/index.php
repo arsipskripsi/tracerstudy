@@ -30,6 +30,7 @@
                 <table class="table table-striped table-hover">
                     <thead class="table-dark">
                         <tr>
+                            <th>No</th>
                             <th>Judul Survei</th>
                             <th>Dibuat Oleh</th>
                             <th>Status</th>
@@ -38,8 +39,11 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($surveys as $survey): ?>
+                        <?php 
+                        $no = 1;
+                        foreach ($surveys as $survey): ?>
                         <tr>
+                            <td><?= $no++ ?></td>
                             <td><?= htmlspecialchars($survey['title'] ?? '-') ?></td>
                             <td><?= htmlspecialchars($survey['creator'] ?? 'System') ?></td>
                             <td>
