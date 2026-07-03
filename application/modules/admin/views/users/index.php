@@ -37,6 +37,7 @@
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
 $(document).ready(function() {
@@ -66,25 +67,49 @@ $(document).ready(function() {
     });
 });
 
-// Delete user function
+// Delete user function with SweetAlert
 function deleteUser(id) {
-    if (confirm('Apakah Anda yakin ingin menghapus user ini?')) {
-        $.ajax({
-            url: '<?php echo site_url("admin/users/delete"); ?>/' + id,
-            type: 'POST',
-            dataType: 'json',
-            success: function(res) {
-                if (res.success) {
-                    alert('User berhasil dihapus');
-                    location.reload();
-                } else {
-                    alert('Gagal menghapus user: ' + res.message);
+    Swal.fire({
+        title: 'Apakah Anda yakin?',
+        text: "User yang dihapus tidak dapat dikembalikan!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Ya, hapus!',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: '<?php echo site_url("admin/users/delete"); ?>/' + id,
+                type: 'POST',
+                dataType: 'json',
+                success: function(res) {
+                    if (res.success) {
+                        Swal.fire(
+                            'Terhapus!',
+                            res.message,
+                            'success'
+                        ).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire(
+                            'Gagal!',
+                            res.message,
+                            'error'
+                        );
+                    }
+                },
+                error: function() {
+                    Swal.fire(
+                        'Error!',
+                        'Terjadi kesalahan saat menghapus user',
+                        'error'
+                    );
                 }
-            },
-            error: function() {
-                alert('Terjadi kesalahan saat menghapus user');
-            }
-        });
-    }
+            });
+        }
+    });
 }
 </script>
