@@ -86,7 +86,7 @@ class Audit extends Admin_Controller {
         
         // Reset dan rebuild query untuk apply filters
         $this->db->reset_query();
-        $this->db->select('al.*, u.username, u.role');
+        $this->db->select('al.*, u.username, u.role, INET_NTOA(al.ip_address) as ip_address_str');
         $this->db->from('activity_logs al');
         $this->db->join('users u', 'al.user_id = u.id', 'left');
         
@@ -113,7 +113,8 @@ class Audit extends Admin_Controller {
             $this->db->like('al.new_values', $search);
             $this->db->or_like('u.username', $search);
             $this->db->or_like('al.module', $search);
-            $this->db->or_like('al.ip_address', $search);
+            // Search pada IP address yang sudah dikonversi
+            $this->db->or_where('INET_NTOA(al.ip_address) LIKE', '%' . $this->db->escape_like_str($search) . '%', false);
             $this->db->group_end();
         }
 
@@ -122,7 +123,7 @@ class Audit extends Admin_Controller {
         
         // Reset lagi dan rebuild untuk query utama (dengan order dan limit)
         $this->db->reset_query();
-        $this->db->select('al.*, u.username, u.role');
+        $this->db->select('al.*, u.username, u.role, INET_NTOA(al.ip_address) as ip_address_str');
         $this->db->from('activity_logs al');
         $this->db->join('users u', 'al.user_id = u.id', 'left');
         
@@ -147,7 +148,7 @@ class Audit extends Admin_Controller {
             $this->db->like('al.new_values', $search);
             $this->db->or_like('u.username', $search);
             $this->db->or_like('al.module', $search);
-            $this->db->or_like('al.ip_address', $search);
+            $this->db->or_where('INET_NTOA(al.ip_address) LIKE', '%' . $this->db->escape_like_str($search) . '%', false);
             $this->db->group_end();
         }
         
@@ -181,6 +182,23 @@ class Audit extends Admin_Controller {
                     $description = $row['new_values'];
                 }
             }
+            
+            // Convert IP address from binary to string if needed
+            $ip_address = $row['ip_address_str'] ?? '';
+            if (empty($ip_address) && !empty($row['ip_address'])) {
+                // Fallback: try to convert binary IP to string
+                $binary_ip = $row['ip_address'];
+                if (strlen($binary_ip) == 4) {
+                    // IPv4
+                    $ip_address = inet_ntop($binary_ip);
+                } elseif (strlen($binary_ip) == 16) {
+                    // IPv6
+                    $ip_address = inet_ntop($binary_ip);
+                } else {
+                    $ip_address = $row['ip_address'];
+                }
+            }
+            
             $nestedData[] = '<small>' . htmlspecialchars(substr($description, 0, 80)) . (strlen($description) > 80 ? '...' : '') . '</small>';
             $nestedData[] = '<button class="btn btn-sm btn-outline-primary view-log" data-id="'.$row['id'].'" title="View Detail"><i class="fas fa-eye"></i></button>';
             $data[] = $nestedData;
@@ -203,7 +221,7 @@ class Audit extends Admin_Controller {
      * @return JSON
      */
     public function view($id) {
-        $this->db->select('al.*, u.username, u.role');
+        $this->db->select('al.*, u.username, u.role, INET_NTOA(al.ip_address) as ip_address_str');
         $this->db->from('activity_logs al');
         $this->db->join('users u', 'al.user_id = u.id', 'left');
         $this->db->where('al.id', $id);
@@ -212,6 +230,19 @@ class Audit extends Admin_Controller {
         if (!$log) {
             echo json_encode(['success' => false, 'message' => 'Log not found']);
             return;
+        }
+
+        // Convert IP address from binary to string if needed
+        $ip_address = $log->ip_address_str ?? '';
+        if (empty($ip_address) && !empty($log->ip_address)) {
+            $binary_ip = $log->ip_address;
+            if (strlen($binary_ip) == 4) {
+                $ip_address = inet_ntop($binary_ip);
+            } elseif (strlen($binary_ip) == 16) {
+                $ip_address = inet_ntop($binary_ip);
+            } else {
+                $ip_address = $log->ip_address;
+            }
         }
 
         // Extract description from new_values JSON
@@ -232,7 +263,7 @@ class Audit extends Admin_Controller {
                 'created_at' => $log->created_at,
                 'username' => $log->username ?? 'System',
                 'role' => $log->role ?? '-',
-                'ip_address' => $log->ip_address,
+                'ip_address' => $ip_address,
                 'user_agent' => $log->user_agent,
                 'action' => $log->action,
                 'module' => $log->module ?? '-',
@@ -265,7 +296,7 @@ class Audit extends Admin_Controller {
         $date_to = $this->input->get('date_to');
 
         // Build query
-        $this->db->select('al.*, u.username, u.role');
+        $this->db->select('al.*, u.username, u.role, INET_NTOA(al.ip_address) as ip_address_str');
         $this->db->from('activity_logs al');
         $this->db->join('users u', 'al.user_id = u.id', 'left');
         
@@ -319,6 +350,19 @@ class Audit extends Admin_Controller {
             echo '</Row>';
             
             foreach ($logs as $log) {
+                // Convert IP address from binary to string if needed
+                $ip_address = $log['ip_address_str'] ?? '';
+                if (empty($ip_address) && !empty($log['ip_address'])) {
+                    $binary_ip = $log['ip_address'];
+                    if (strlen($binary_ip) == 4) {
+                        $ip_address = inet_ntop($binary_ip);
+                    } elseif (strlen($binary_ip) == 16) {
+                        $ip_address = inet_ntop($binary_ip);
+                    } else {
+                        $ip_address = $log['ip_address'];
+                    }
+                }
+                
                 // Extract description from new_values JSON for export
                 $description = '-';
                 if (!empty($log['new_values'])) {
@@ -337,7 +381,7 @@ class Audit extends Admin_Controller {
                 echo '<Cell><Data ss:Type="String">' . htmlspecialchars($log['action']) . '</Data></Cell>';
                 echo '<Cell><Data ss:Type="String">' . htmlspecialchars($log['module'] ?? '-') . '</Data></Cell>';
                 echo '<Cell><Data ss:Type="String">' . htmlspecialchars($description) . '</Data></Cell>';
-                echo '<Cell><Data ss:Type="String">' . htmlspecialchars($log['ip_address']) . '</Data></Cell>';
+                echo '<Cell><Data ss:Type="String">' . htmlspecialchars($ip_address) . '</Data></Cell>';
                 echo '</Row>';
             }
             
