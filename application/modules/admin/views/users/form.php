@@ -28,7 +28,7 @@
             </div>
             <?php endif; ?>
             
-            <form method="post" action="">
+            <?= form_open() ?>
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label fw-bold">Username <span class="text-danger">*</span></label>
@@ -74,7 +74,7 @@
                         <i class="bi bi-x-circle me-2"></i> Batal
                     </a>
                 </div>
-            </form>
+            <?= form_close() ?>
         </div>
     </div>
 </div>
