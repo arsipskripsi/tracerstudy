@@ -14,7 +14,7 @@
         <div class="card-body">
             <!-- Filters -->
             <div class="row g-3 mb-4 p-3 bg-light rounded border">
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <label class="form-label fw-bold"><i class="fas fa-folder me-1"></i> Module</label>
                     <select class="form-select form-select-sm" id="filter_module">
                         <option value="">All Modules</option>
@@ -23,7 +23,7 @@
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <label class="form-label fw-bold"><i class="fas fa-tasks me-1"></i> Action</label>
                     <select class="form-select form-select-sm" id="filter_action">
                         <option value="">All Actions</option>
@@ -32,7 +32,16 @@
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
+                    <label class="form-label fw-bold"><i class="fas fa-user me-1"></i> User</label>
+                    <select class="form-select form-select-sm" id="filter_user">
+                        <option value="">All Users</option>
+                        <?php foreach ($users as $user): ?>
+                        <option value="<?php echo $user['id']; ?>"><?php echo htmlspecialchars($user['username']); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-md-3">
                     <label class="form-label fw-bold"><i class="fas fa-calendar-alt me-1"></i> Date Range</label>
                     <div class="input-group input-group-sm">
                         <span class="input-group-text"><i class="fas fa-calendar"></i></span>
@@ -62,12 +71,13 @@
                 <table id="audit_table" class="table table-striped table-hover table-bordered" style="width:100%">
                     <thead class="table-dark">
                         <tr>
+                            <th width="5%" class="text-center"><i class="fas fa-list-ol me-1"></i> No</th>
                             <th width="15%"><i class="fas fa-clock me-1"></i> Timestamp</th>
                             <th width="15%"><i class="fas fa-user me-1"></i> User</th>
                             <th width="10%"><i class="fas fa-tasks me-1"></i> Action</th>
                             <th width="10%"><i class="fas fa-database me-1"></i> Module</th>
                             <th width="35%"><i class="fas fa-align-left me-1"></i> Description</th>
-                            <th width="15%" class="text-center"><i class="fas fa-cog me-1"></i> Actions</th>
+                            <th width="10%" class="text-center"><i class="fas fa-cog me-1"></i> Actions</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -156,11 +166,17 @@ $(document).ready(function() {
             data: function(d) {
                 d.module = $('#filter_module').val();
                 d.action = $('#filter_action').val();
+                d.user_id = $('#filter_user').val();
                 d.date_from = $('#date_from').val();
                 d.date_to = $('#date_to').val();
             }
         },
         columns: [
+            { data: null, orderable: false, className: 'text-center',
+                render: function(data, type, row, meta) {
+                    return meta.row + meta.settings._iDisplayStart + 1;
+                }
+            },
             { data: 0, orderable: true },
             { data: 1, orderable: true },
             { data: 2, orderable: true },
@@ -168,7 +184,7 @@ $(document).ready(function() {
             { data: 4, orderable: false },
             { data: 5, orderable: false, className: 'text-center' }
         ],
-        order: [[0, 'desc']],
+        order: [[1, 'desc']],
         pageLength: 25,
         lengthMenu: [10, 25, 50, 100],
         language: {
@@ -192,6 +208,7 @@ $(document).ready(function() {
         var params = '?format=' + format;
         if($('#filter_module').val()) params += '&module=' + encodeURIComponent($('#filter_module').val());
         if($('#filter_action').val()) params += '&action=' + encodeURIComponent($('#filter_action').val());
+        if($('#filter_user').val()) params += '&user_id=' + encodeURIComponent($('#filter_user').val());
         if($('#date_from').val()) params += '&date_from=' + encodeURIComponent($('#date_from').val());
         if($('#date_to').val()) params += '&date_to=' + encodeURIComponent($('#date_to').val());
         
