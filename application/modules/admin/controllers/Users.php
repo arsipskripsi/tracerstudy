@@ -106,9 +106,9 @@ class Users extends Admin_Controller {
                 $user_data = [
                     'username' => $this->input->post('username'),
                     'email' => $this->input->post('email'),
-                    'password' => password_hash($this->input->post('password'), PASSWORD_DEFAULT),
+                    'password_hash' => password_hash($this->input->post('password'), PASSWORD_DEFAULT),
                     'role' => $this->input->post('role'),
-                    'is_email_verified' => 1,
+                    'is_verified' => 1,
                     'created_at' => date('Y-m-d H:i:s')
                 ];
                 
@@ -158,7 +158,7 @@ class Users extends Admin_Controller {
                 ];
                 
                 if (!empty($this->input->post('password'))) {
-                    $update_data['password'] = password_hash($this->input->post('password'), PASSWORD_DEFAULT);
+                    $update_data['password_hash'] = password_hash($this->input->post('password'), PASSWORD_DEFAULT);
                 }
                 
                 $this->db->where('id', $id)->update('users', $update_data);
