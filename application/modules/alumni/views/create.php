@@ -13,8 +13,15 @@
             </div>
             <?php endif; ?>
 
-            <form action="<?php echo site_url('alumni/store'); ?>" method="post" enctype="multipart/form-data">
-                <?php echo csrf_field(); ?>
+            <?php if ($this->session->flashdata('message')): ?>
+            <div class="alert alert-<?php echo $this->session->flashdata('message_type') ?? 'success'; ?> alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
+                <?php echo $this->session->flashdata('message'); ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <?php endif; ?>
+
+            <?= form_open(['action' => 'alumni/store', 'method' => 'post', 'enctype' => 'multipart/form-data']) ?>
                 
                 <div class="row g-4">
                     <!-- Personal Information -->
@@ -130,7 +137,7 @@
                         <i class="fas fa-save me-1"></i> Simpan Alumni
                     </button>
                 </div>
-            </form>
+            <?= form_close() ?>
         </div>
     </div>
 </div>
