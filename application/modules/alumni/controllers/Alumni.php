@@ -102,10 +102,12 @@ class Alumni extends Admin_Controller {
         
         // Format data for DataTables
         $data = [];
+        $no = $start + 1; // Start numbering from current page start
         foreach ($result['data'] as $row) {
             $nestedData = [];
             
-            // Checkbox
+            // No
+            $nestedData[] = $no++;
             $nestedData[] = '<input type="checkbox" class="alumni-checkbox" value="' . $row['id'] . '">';
             
             // NIM
@@ -139,18 +141,19 @@ class Alumni extends Admin_Controller {
                 $nestedData[] = '-';
             }
             
-            // Actions
+
+            // Actions (Dropdown)
             $actions = '
-                <div class="btn-group btn-group-sm" role="group">
-                    <a href="' . site_url('alumni/detail/' . $row['id']) . '" class="btn btn-outline-info" title="Detail">
-                        <i class="fas fa-eye"></i>
-                    </a>
-                    <a href="' . site_url('alumni/edit/' . $row['id']) . '" class="btn btn-outline-primary" title="Edit">
-                        <i class="fas fa-edit"></i>
-                    </a>
-                    <button type="button" class="btn btn-outline-danger" onclick="deleteAlumni(' . $row['id'] . ')" title="Delete">
-                        <i class="fas fa-trash"></i>
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-cog"></i> Aksi
                     </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="' . site_url('alumni/detail/' . $row['id']) . '"><i class="fas fa-eye me-2"></i>Detail</a></li>
+                        <li><a class="dropdown-item" href="' . site_url('alumni/edit/' . $row['id']) . '"><i class="fas fa-edit me-2"></i>Edit</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="#" onclick="deleteAlumni(' . $row['id'] . '); return false;"><i class="fas fa-trash me-2"></i>Hapus</a></li>
+                    </ul>
                 </div>
             ';
             $nestedData[] = $actions;

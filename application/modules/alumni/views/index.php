@@ -78,6 +78,7 @@
                 <table id="alumni_table" class="table table-striped table-hover table-bordered" style="width:100%">
                     <thead class="table-dark">
                         <tr>
+                            <th width="5%">No</th>
                             <th width="3%"><input type="checkbox" id="select_all"></th>
                             <th width="8%">NIM</th>
                             <th width="20%">Nama</th>
@@ -86,7 +87,7 @@
                             <th width="10%">Status Kerja</th>
                             <th width="10%">Gaji</th>
                             <th width="8%">Masa Tunggu</th>
-                            <th width="18%" class="text-center">Actions</th>
+                            <th width="13%" class="text-center">Actions</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -127,15 +128,16 @@ $(document).ready(function() {
             }
         },
         columns: [
-            { data: 0, orderable: false, className: 'text-center' },
-            { data: 1, orderable: true },
-            { data: 2, orderable: true },
-            { data: 3, orderable: true },
-            { data: 4, orderable: true },
-            { data: 5, orderable: true },
-            { data: 6, orderable: false },
-            { data: 7, orderable: false },
-            { data: 8, orderable: false, className: 'text-center' }
+            { data: 0, orderable: false, className: 'text-center' }, // No
+            { data: 1, orderable: false, className: 'text-center' }, // Checkbox
+            { data: 2, orderable: true }, // NIM
+            { data: 3, orderable: true }, // Nama
+            { data: 4, orderable: true }, // Prodi
+            { data: 5, orderable: true }, // Tahun Lulus
+            { data: 6, orderable: true }, // Status Kerja
+            { data: 7, orderable: false }, // Gaji
+            { data: 8, orderable: false }, // Masa Tunggu
+            { data: 9, orderable: false, className: 'text-center' } // Actions
         ],
         order: [[4, 'desc']],
         pageLength: 25,
