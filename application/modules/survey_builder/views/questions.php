@@ -24,7 +24,7 @@
                 <div class="d-flex justify-content-between mb-3">
                     <h5>Daftar Pertanyaan (Total: <?= count($questions) ?>)</h5>
                     <?php if ($survey->status === 'draft'): ?>
-                        <a href="<?= site_url('survey_question/create/' . $survey->id) ?>" class="btn btn-primary">
+                        <a href="<?= site_url('survey/question/create/' . $survey->id) ?>" class="btn btn-primary">
                             <i class="fa fa-plus"></i> Tambah Pertanyaan Baru
                         </a>
                     <?php endif; ?>
@@ -59,7 +59,7 @@
                                         <td><?= $q->order ?></td>
                                         <td>
                                             <?php if (!$q->is_belma_inti && $survey->status === 'draft'): ?>
-                                                <a href="<?= site_url('survey_question/edit/' . $survey->id . '/' . $q->id) ?>" class="btn btn-sm btn-outline-primary" title="Edit">
+                                                <a href="<?= site_url('survey/question/edit/' . $survey->id . '/' . $q->id) ?>" class="btn btn-sm btn-outline-primary" title="Edit">
                                                     <i class="fa fa-edit"></i>
                                                 </a>
                                                 <button onclick="deleteQuestion(<?= $q->id ?>)" class="btn btn-sm btn-outline-danger" title="Hapus">
@@ -87,7 +87,7 @@
             if (!confirm('Apakah Anda yakin ingin menghapus pertanyaan ini?')) return;
 
             $.ajax({
-                url: '<?= site_url('survey_question/delete/' . $survey->id) ?>/' + questionId,
+                url: '<?= site_url('survey/question/delete/' . $survey->id) ?>/' + questionId,
                 type: 'DELETE',
                 dataType: 'json',
                 success: function(response) {

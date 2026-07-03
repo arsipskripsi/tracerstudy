@@ -252,4 +252,100 @@ class Survey_builder extends MY_Controller {
         $data['questions'] = $this->survey_model->get_questions_with_logic($id);
         $this->load->view('survey_builder/preview', $data);
     }
+
+    /**
+     * Handle survey question management (create, edit, delete)
+     * Called via route: survey/question/(:any)
+     */
+    public function survey_question($action = '', $survey_id = '', $question_id = '') {
+        // Load required models
+        $this->load->model(['survey_model', 'survey_question_model']);
+        
+        // Check authentication
+        if (!$this->session->userdata('logged_in')) {
+            redirect('auth/login');
+        }
+
+        // Handle create action
+        if ($action === 'create') {
+            // Get survey ID from POST or redirect
+            if (empty($survey_id)) {
+                $survey_id = $this->input->post('survey_id');
+            }
+            
+            if (empty($survey_id)) {
+                show_404('Survey ID tidak ditemukan');
+            }
+
+            $survey = $this->survey_model->get_by_id($survey_id);
+            
+            if (!$survey || $survey->status === 'published') {
+                $this->session->set_flashdata('error', 'Survey tidak ditemukan atau sudah dipublikasikan.');
+                redirect('survey_builder/edit/' . $survey_id);
+            }
+
+            $data['survey'] = $survey;
+            $data['question_types'] = [
+                'text' => 'Jawaban Singkat (Text)',
+                'textarea' => 'Jawaban Panjang (Textarea)',
+                'number' => 'Angka',
+                'date' => 'Tanggal',
+                'radio' => 'Pilihan Ganda (Radio)',
+                'checkbox' => 'Checkbox',
+                'dropdown' => 'Dropdown',
+                'matrix' => 'Matriks',
+                'file' => 'Upload File',
+                'scale_likert' => 'Skala Likert'
+            ];
+            
+            $this->load->view('survey_builder/question_form', $data);
+            return;
+        }
+
+        // Handle edit action
+        if ($action === 'edit') {
+            if (empty($survey_id) || empty($question_id)) {
+                show_404('ID tidak lengkap');
+            }
+
+            $survey = $this->survey_model->get_by_id($survey_id);
+            
+            if (!$survey || $survey->status === 'published') {
+                $this->session->set_flashdata('error', 'Survey tidak ditemukan atau sudah dipublikasikan.');
+                redirect('survey_builder/edit/' . $survey_id);
+            }
+
+            $question = $this->survey_question_model->get_by_id($question_id);
+            
+            if (!$question) {
+                show_404();
+            }
+
+            // BR-SUR-001: Pertanyaan inti tidak dapat diubah
+            if ($question->is_belma_inti == 1) {
+                $this->session->set_flashdata('error', 'Pertanyaan inti tidak dapat diubah oleh Admin Prodi.');
+                redirect('survey_builder/questions/' . $survey_id);
+            }
+
+            $data['survey'] = $survey;
+            $data['question'] = $question;
+            $data['question_types'] = [
+                'text' => 'Jawaban Singkat (Text)',
+                'textarea' => 'Jawaban Panjang (Textarea)',
+                'number' => 'Angka',
+                'date' => 'Tanggal',
+                'radio' => 'Pilihan Ganda (Radio)',
+                'checkbox' => 'Checkbox',
+                'dropdown' => 'Dropdown',
+                'matrix' => 'Matriks',
+                'file' => 'Upload File',
+                'scale_likert' => 'Skala Likert'
+            ];
+            
+            $this->load->view('survey_builder/question_form', $data);
+            return;
+        }
+
+        show_404('Aksi tidak dikenali: ' . $action);
+    }
 }

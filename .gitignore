@@ -1,1 +1,35 @@
-Nothing needs to be added to .gitignore since the changes only include PHP source files (.php) and no build artifacts, dependencies, or temporary files.
+```
+# Compiled and build artifacts
+*.pyc
+__pycache__/
+*.o
+*.obj
+
+# Dependencies
+vendor/
+node_modules/
+
+# Logs and temp files
+*.log
+*.tmp
+*.swp
+
+# Environment
+.env
+.env.local
+*.env.*
+
+# Editors
+.vscode/
+.idea/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# CodeIgniter specific
+application/logs/
+application/cache/
+system/database/
+!application/config/database.php
+```

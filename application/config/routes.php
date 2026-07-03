@@ -134,7 +134,10 @@ $route['stakeholder/(:any)']            = 'stakeholder/stakeholder/$1';
 $route['survey']                        = 'survey_builder/survey/index';
 $route['survey/builder/(:any)']         = 'survey_builder/survey_builder/$1';
 $route['survey/logic/(:any)']           = 'survey_builder/survey_logic/$1';
-$route['survey/question/(:any)']        = 'survey_builder/survey_question/$1';
+$route['survey/question/(:any)']        = 'survey_builder/survey_builder/survey_question/$1';
+$route['survey/question/store/(:num)']  = 'survey_builder/survey_question/store/$1';
+$route['survey/question/update/(:num)/(:num)'] = 'survey_builder/survey_question/update/$1/$2';
+$route['survey/question/delete/(:num)/(:num)'] = 'survey_builder/survey_question/delete/$1/$2';
 $route['survey/(:any)']                 = 'survey_builder/survey/$1';
 
 /*
