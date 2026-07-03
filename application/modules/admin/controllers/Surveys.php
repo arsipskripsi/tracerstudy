@@ -97,10 +97,9 @@ class Surveys extends Admin_Controller {
                     $question_data = [
                         'survey_id' => $survey_id,
                         'question_text' => $q['question_text'],
-                        'type' => $q['type'],
-                        'options' => isset($q['options']) ? $q['options'] : null,
-                        'is_required' => 1,
-                        'is_core' => 1,
+                        'question_type' => $q['type'],
+                        'options' => isset($q['options']) ? json_encode(explode('|', $q['options'])) : null,
+                        'is_belma_inti' => 1,
                         'order' => $index + 1
                     ];
                     $this->survey_model->insert_question($question_data);
@@ -108,12 +107,13 @@ class Surveys extends Admin_Controller {
             }
 
             // Audit log
-            log_tracer_audit(
-                'surveys',
-                $survey_id,
+            audit_log(
                 'create',
+                'surveys',
                 'Survey created: ' . $data['title'],
-                $this->session->userdata('user_id')
+                $this->session->userdata('user_id'),
+                null,
+                $data
             );
 
             $this->session->set_flashdata('success', 'Survey berhasil dibuat!');

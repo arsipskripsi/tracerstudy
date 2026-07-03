@@ -98,7 +98,7 @@ class Survey_model extends CI_Model {
      */
     public function count_core_questions($survey_id) {
         $this->db->where('survey_id', $survey_id);
-        $this->db->where('is_core', 1);
+        $this->db->where('is_belma_inti', 1);
         return $this->db->count_all_results('survey_questions');
     }
 
