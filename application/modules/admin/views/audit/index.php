@@ -165,6 +165,14 @@ $(document).ready(function() {
         ajax: {
             url: '<?php echo site_url("admin/audit/get_data"); ?>',
             type: 'GET',
+            dataSrc: function(json) {
+                console.log('DataTables Response:', json);
+                if (!json.data) {
+                    console.error('No data property in response');
+                    return [];
+                }
+                return json.data;
+            },
             data: function(d) {
                 d.module = $('#filter_module').val();
                 d.action = $('#filter_action').val();
@@ -174,7 +182,9 @@ $(document).ready(function() {
             },
             error: function(xhr, error, thrown) {
                 console.error('AJAX Error:', error);
+                console.error('Response Status:', xhr.status);
                 console.error('Response:', xhr.responseText);
+                alert('Error loading data: ' + xhr.status + ' - ' + error);
             }
         },
         columns: [
@@ -198,9 +208,12 @@ $(document).ready(function() {
             zeroRecords: 'Tidak ada data audit trail ditemukan',
             emptyTable: 'Belum ada aktivitas yang tercatat'
         },
-        drawCallback: function() {
+        drawCallback: function(settings) {
             // Re-initialize tooltips after table draw
             $('[data-bs-toggle="tooltip"]').tooltip();
+            // Debug info
+            var api = this.api();
+            console.log('Table drawn. Total records:', api.page.info().recordsTotal);
         }
     });
 
@@ -287,8 +300,14 @@ $(document).ready(function() {
                                     </tr>
                                     <tr>
                                         <th><i class="fas fa-database me-2"></i>Module</th>
-                                        <td>${escapeHtml(data.table_name || '-')}</td>
+                                        <td>${escapeHtml(data.module || '-')}</td>
                                     </tr>
+                                    ${data.table_name ? `
+                                    <tr>
+                                        <th><i class="fas fa-table me-2"></i>Table Name</th>
+                                        <td>${escapeHtml(data.table_name)}</td>
+                                    </tr>
+                                    ` : ''}
                                     ${data.record_id ? `
                                     <tr>
                                         <th><i class="fas fa-hashtag me-2"></i>Record ID</th>
