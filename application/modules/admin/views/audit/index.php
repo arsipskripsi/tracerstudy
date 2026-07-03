@@ -50,9 +50,12 @@
                     <input type="hidden" id="date_from">
                     <input type="hidden" id="date_to">
                 </div>
-                <div class="col-md-2 d-flex align-items-end">
-                    <button class="btn btn-primary btn-sm w-100" onclick="reloadTable()">
+                <div class="col-md-2 d-flex align-items-end gap-2">
+                    <button class="btn btn-primary btn-sm flex-grow-1" onclick="reloadTable()">
                         <i class="fas fa-filter me-1"></i> Filter
+                    </button>
+                    <button class="btn btn-outline-secondary btn-sm" onclick="clearFilters()" title="Clear All Filters">
+                        <i class="fas fa-times"></i>
                     </button>
                 </div>
             </div>
@@ -149,11 +152,10 @@ $(document).ready(function() {
         $('#date_to').val(end.format('YYYY-MM-DD'));
     });
 
-    // Set default range (Last 30 Days)
-    $('#date_range').data('daterangepicker').setStartDate(moment().subtract(29, 'days'));
-    $('#date_range').data('daterangepicker').setEndDate(moment());
-    $('#date_from').val(moment().subtract(29, 'days').format('YYYY-MM-DD'));
-    $('#date_to').val(moment().format('YYYY-MM-DD'));
+    // Set default: No date filter (show all data by default)
+    $('#date_from').val('');
+    $('#date_to').val('');
+    $('#date_range').val('');
 
     // Init DataTables with Server-Side Processing
     var table = $('#audit_table').DataTable({
@@ -198,9 +200,32 @@ $(document).ready(function() {
         }
     });
 
-    // Reload Table Function
+    // Reload Table Function - reset to page 0 when filters change
     window.reloadTable = function() {
-        table.ajax.reload();
+        table.ajax.reload(null, true); // true = reset pagination to first page
+    };
+    
+    // Auto-reload when filter dropdowns change
+    $('#filter_module, #filter_action, #filter_user').on('change', function() {
+        reloadTable();
+    });
+    
+    // Auto-reload when date range is applied
+    $('#date_range').on('apply.daterangepicker', function(ev, picker) {
+        $('#date_from').val(picker.startDate.format('YYYY-MM-DD'));
+        $('#date_to').val(picker.endDate.format('YYYY-MM-DD'));
+        reloadTable();
+    });
+    
+    // Clear all filters
+    window.clearFilters = function() {
+        $('#filter_module').val('');
+        $('#filter_action').val('');
+        $('#filter_user').val('');
+        $('#date_from').val('');
+        $('#date_to').val('');
+        $('#date_range').val('');
+        reloadTable();
     };
 
     // Export Function
