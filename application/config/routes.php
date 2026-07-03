@@ -74,6 +74,13 @@ $route['admin']                         = 'admin/dashboard/index';
 $route['admin/dashboard']               = 'admin/dashboard/index';
 $route['admin/audit']                   = 'admin/audit/index';
 $route['admin/audit/(:any)']            = 'admin/audit/$1';
+$route['admin/surveys']                 = 'admin/surveys/index';
+$route['admin/surveys/create']          = 'admin/surveys/create';
+$route['admin/surveys/store']           = 'admin/surveys/store';
+$route['admin/surveys/edit/(:num)']     = 'admin/surveys/edit/$1';
+$route['admin/surveys/update/(:num)']   = 'admin/surveys/update/$1';
+$route['admin/surveys/delete/(:num)']   = 'admin/surveys/delete/$1';
+$route['admin/surveys/publish/(:num)']  = 'admin/surveys/publish/$1';
 
 /*
 |--------------------------------------------------------------------------
