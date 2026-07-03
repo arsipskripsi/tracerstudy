@@ -7,7 +7,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  */
 class Survey_logic_model extends MY_Model {
 
-    protected $table_name = 'survey_logics';
+    protected $table_name = 'survey_logic';
     protected $primary_key = 'id';
 
     public function __construct() {
@@ -20,21 +20,21 @@ class Survey_logic_model extends MY_Model {
      */
     public function get_by_survey($survey_id) {
         $this->db->where('survey_id', $survey_id);
-        return $this->db->get('survey_logics')->result();
+        return $this->db->get('survey_logic')->result();
     }
 
     /**
      * Get logic by ID
      */
     public function get_by_id($id) {
-        return $this->db->get_where('survey_logics', ['id' => $id])->row();
+        return $this->db->get_where('survey_logic', ['id' => $id])->row();
     }
 
     /**
      * Insert new logic jump
      */
     public function insert($data) {
-        $this->db->insert('survey_logics', $data);
+        $this->db->insert('survey_logic', $data);
         return $this->db->insert_id();
     }
 
@@ -42,7 +42,7 @@ class Survey_logic_model extends MY_Model {
      * Delete logic jump
      */
     public function delete($id) {
-        return $this->db->delete('survey_logics', ['id' => $id]);
+        return $this->db->delete('survey_logic', ['id' => $id]);
     }
 
     /**
@@ -50,7 +50,7 @@ class Survey_logic_model extends MY_Model {
      */
     public function get_by_question($question_id) {
         $this->db->where('question_id', $question_id);
-        return $this->db->get('survey_logics')->result();
+        return $this->db->get('survey_logic')->result();
     }
 
     /**
@@ -80,7 +80,7 @@ class Survey_logic_model extends MY_Model {
     private function _build_adjacency_list($survey_id) {
         $this->db->select('question_id, target_question_id');
         $this->db->where('survey_id', $survey_id);
-        $logics = $this->db->get('survey_logics')->result();
+        $logics = $this->db->get('survey_logic')->result();
 
         $adjacency = [];
         foreach ($logics as $logic) {
@@ -162,14 +162,14 @@ class Survey_logic_model extends MY_Model {
      */
     public function count_by_survey($survey_id) {
         $this->db->where('survey_id', $survey_id);
-        return $this->db->count_all_results('survey_logics');
+        return $this->db->count_all_results('survey_logic');
     }
 
     /**
      * Delete all logics for a survey
      */
     public function delete_by_survey($survey_id) {
-        return $this->db->delete('survey_logics', ['survey_id' => $survey_id]);
+        return $this->db->delete('survey_logic', ['survey_id' => $survey_id]);
     }
 
     /**
@@ -177,7 +177,7 @@ class Survey_logic_model extends MY_Model {
      */
     public function get_logic_paths($survey_id) {
         $this->db->select('l.*, q.question_text as source_text, t.question_text as target_text, q.order as source_order, t.order as target_order');
-        $this->db->from('survey_logics l');
+        $this->db->from('survey_logic l');
         $this->db->join('survey_questions q', 'l.question_id = q.id');
         $this->db->join('survey_questions t', 'l.target_question_id = t.id');
         $this->db->where('l.survey_id', $survey_id);

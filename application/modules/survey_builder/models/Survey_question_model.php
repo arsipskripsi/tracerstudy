@@ -52,8 +52,8 @@ class Survey_question_model extends MY_Model {
      */
     public function delete($id) {
         // Also delete associated logic jumps
-        $this->db->delete('survey_logics', ['question_id' => $id]);
-        $this->db->delete('survey_logics', ['target_question_id' => $id]);
+        $this->db->delete('survey_logic', ['question_id' => $id]);
+        $this->db->delete('survey_logic', ['target_question_id' => $id]);
         
         return $this->db->delete('survey_questions', ['id' => $id]);
     }
@@ -93,7 +93,7 @@ class Survey_question_model extends MY_Model {
      */
     public function get_by_type($survey_id, $type) {
         $this->db->where('survey_id', $survey_id);
-        $this->db->where('type', $type);
+        $this->db->where('question_type', $type);
         $this->db->order_by('order', 'ASC');
         return $this->db->get('survey_questions')->result();
     }
@@ -122,6 +122,6 @@ class Survey_question_model extends MY_Model {
      */
     public function has_logic($question_id) {
         $this->db->where('question_id', $question_id);
-        return $this->db->count_all_results('survey_logics') > 0;
+        return $this->db->count_all_results('survey_logic') > 0;
     }
 }

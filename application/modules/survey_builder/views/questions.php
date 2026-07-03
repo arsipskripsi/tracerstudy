@@ -50,18 +50,21 @@
                             </thead>
                             <tbody>
                                 <?php foreach ($questions as $idx => $q): ?>
-                                    <tr class="<?= $q->is_core ? 'table-danger' : '' ?>">
+                                    <tr class="<?= $q->is_belma_inti ? 'table-danger' : '' ?>">
                                         <td><?= $idx + 1 ?></td>
                                         <td><?= htmlspecialchars($q->question_text) ?></td>
-                                        <td><span class="badge badge-secondary"><?= strtoupper($q->type) ?></span></td>
+                                        <td><span class="badge badge-secondary"><?= strtoupper($q->question_type) ?></span></td>
                                         <td><?= $q->is_required ? '<span class="text-success">Ya</span>' : '<span class="text-muted">Tidak</span>' ?></td>
-                                        <td><?= $q->is_core ? '<span class="badge badge-danger"><i class="fa fa-lock"></i> Ya</span>' : '<span class="text-muted">Tidak</span>' ?></td>
+                                        <td><?= $q->is_belma_inti ? '<span class="badge badge-danger"><i class="fa fa-lock"></i> Ya</span>' : '<span class="text-muted">Tidak</span>' ?></td>
                                         <td><?= $q->order ?></td>
                                         <td>
-                                            <?php if (!$q->is_core && $survey->status === 'draft'): ?>
-                                                <a href="<?= site_url('survey_question/edit/' . $survey->id . '/' . $q->id) ?>" class="btn btn-sm btn-outline-primary">
+                                            <?php if (!$q->is_belma_inti && $survey->status === 'draft'): ?>
+                                                <a href="<?= site_url('survey_question/edit/' . $survey->id . '/' . $q->id) ?>" class="btn btn-sm btn-outline-primary" title="Edit">
                                                     <i class="fa fa-edit"></i>
                                                 </a>
+                                                <button onclick="deleteQuestion(<?= $q->id ?>)" class="btn btn-sm btn-outline-danger" title="Hapus">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
                                             <?php else: ?>
                                                 <button class="btn btn-sm btn-light" disabled title="Pertanyaan inti tidak dapat diubah">
                                                     <i class="fa fa-lock"></i>
@@ -79,5 +82,27 @@
     </div>
     <script src="<?= base_url('assets/js/jquery.min.js') ?>"></script>
     <script src="<?= base_url('assets/js/bootstrap.bundle.min.js') ?>"></script>
+    <script>
+        function deleteQuestion(questionId) {
+            if (!confirm('Apakah Anda yakin ingin menghapus pertanyaan ini?')) return;
+
+            $.ajax({
+                url: '<?= site_url('survey_question/delete/' . $survey->id) ?>/' + questionId,
+                type: 'DELETE',
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        location.reload();
+                    } else {
+                        alert('Error: ' + response.message);
+                    }
+                },
+                error: function(xhr) {
+                    const msg = xhr.responseJSON ? xhr.responseJSON.message : 'Terjadi kesalahan';
+                    alert('Error: ' + msg);
+                }
+            });
+        }
+    </script>
 </body>
 </html>
