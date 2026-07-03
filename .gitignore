@@ -4,18 +4,16 @@
 __pycache__/
 
 # Dependencies
-vendor/
 node_modules/
+venv/
+.venv/
+.env
+.env.local
+*.env.*
 
 # Logs and temp files
 *.log
 *.tmp
-*.swp
-
-# Environment
-.env
-.env.local
-*.env.*
 
 # Editors
 .vscode/
@@ -25,24 +23,13 @@ node_modules/
 .DS_Store
 Thumbs.db
 
-# Backup files
-*~
-*.bak
-*.backup
+# Coverage reports
+coverage/
+htmlcov/
+.coverage
 
-# Composer/Packagist
-composer.lock
-vendor/
-
-# PHP specific
-*.php~
-.php_cs.cache
-
-# Web server
-.htaccess
-.webserver-config.php
-
-# Cache directories
-cache/
-tmp/
+# Build directories
+dist/
+build/
+target/
 ```

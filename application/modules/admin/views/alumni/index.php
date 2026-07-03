@@ -1,4 +1,13 @@
 <div class="container-fluid py-4">
+    <!-- Flash Messages -->
+    <?php if ($this->session->flashdata('message')) : ?>
+        <div class="alert alert-<?= $this->session->flashdata('message_type') ?> alert-dismissible fade show" role="alert">
+            <i class="bi bi-<?= $this->session->flashdata('message_type') == 'success' ? 'check-circle' : 'exclamation-circle' ?> me-2"></i>
+            <?= $this->session->flashdata('message') ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <?php endif; ?>
+    
     <div class="card shadow-sm border-0">
         <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom">
             <div>
@@ -85,6 +94,9 @@ function deleteAlumni(id) {
             $.ajax({
                 url: '<?php echo site_url("admin/alumni/delete"); ?>/' + id,
                 type: 'POST',
+                data: {
+                    '<?php echo $this->security->get_csrf_token_name(); ?>': '<?php echo $this->security->get_csrf_hash(); ?>'
+                },
                 dataType: 'json',
                 success: function(res) {
                     if (res.success) {
