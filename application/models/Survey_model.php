@@ -53,6 +53,66 @@ class Survey_model extends CI_Model {
     }
 
     /**
+     * Insert new survey
+     * @param array $data Survey data
+     * @return int Survey ID on success
+     */
+    public function insert($data) {
+        $this->db->insert('surveys', $data);
+        return $this->db->insert_id();
+    }
+
+    /**
+     * Update survey
+     * @param int $id Survey ID
+     * @param array $data Survey data
+     * @return bool
+     */
+    public function update($id, $data) {
+        $this->db->where('id', $id);
+        return $this->db->update('surveys', $data);
+    }
+
+    /**
+     * Delete survey
+     * @param int $id Survey ID
+     * @return bool
+     */
+    public function delete($id) {
+        return $this->db->delete('surveys', ['id' => $id]);
+    }
+
+    /**
+     * Get survey by ID (alias for get_survey)
+     * @param int $id Survey ID
+     * @return object|null
+     */
+    public function get_by_id($id) {
+        return $this->get_survey($id);
+    }
+
+    /**
+     * Count core questions in a survey
+     * @param int $survey_id Survey ID
+     * @return int
+     */
+    public function count_core_questions($survey_id) {
+        $this->db->where('survey_id', $survey_id);
+        $this->db->where('is_core', 1);
+        return $this->db->count_all_results('survey_questions');
+    }
+
+    /**
+     * Insert question
+     * @param array $data Question data
+     * @return int Question ID on success
+     */
+    public function insert_question($data) {
+        $this->db->insert('survey_questions', $data);
+        return $this->db->insert_id();
+    }
+
+    /**
      * Get survey questions
      * @param int $survey_id
      * @return array
