@@ -38,14 +38,16 @@ class Survey_question extends MY_Controller {
 
         $data['survey'] = $survey;
         $data['question_types'] = [
-            'short_answer' => 'Jawaban Singkat',
-            'long_answer' => 'Jawaban Panjang',
-            'multiple_choice' => 'Pilihan Ganda',
-            'dropdown' => 'Dropdown',
-            'checkbox' => 'Checkbox',
-            'rating' => 'Rating (1-5)',
+            'text' => 'Jawaban Singkat (Text)',
+            'textarea' => 'Jawaban Panjang (Textarea)',
+            'number' => 'Angka',
             'date' => 'Tanggal',
-            'number' => 'Angka'
+            'radio' => 'Pilihan Ganda (Radio)',
+            'checkbox' => 'Checkbox',
+            'dropdown' => 'Dropdown',
+            'matrix' => 'Matriks',
+            'file' => 'Upload File',
+            'scale_likert' => 'Skala Likert'
         ];
         
         $this->load->view('survey_builder/question_form', $data);
@@ -61,7 +63,7 @@ class Survey_question extends MY_Controller {
         }
 
         $this->form_validation->set_rules('question_text', 'Pertanyaan', 'required|trim');
-        $this->form_validation->set_rules('type', 'Tipe Pertanyaan', 'required|in_list[short_answer,long_answer,multiple_choice,dropdown,checkbox,rating,date,number]');
+        $this->form_validation->set_rules('question_type', 'Tipe Pertanyaan', 'required|in_list[text,textarea,number,date,radio,checkbox,dropdown,matrix,file,scale_likert]');
         $this->form_validation->set_rules('is_required', 'Wajib Diisi', 'numeric|in_list[0,1]');
 
         if ($this->form_validation->run() == FALSE) {
@@ -70,17 +72,18 @@ class Survey_question extends MY_Controller {
             return;
         }
 
-        $type = $this->input->post('type');
+        $question_type = $this->input->post('question_type');
         $options = null;
         
-        if (in_array($type, ['multiple_choice', 'dropdown', 'checkbox'])) {
+        if (in_array($question_type, ['radio', 'checkbox', 'dropdown'])) {
             $options_str = $this->input->post('options');
             if (empty($options_str)) {
                 $this->output->set_status_header(400);
                 echo json_encode(['success' => false, 'message' => 'Opsi harus diisi untuk tipe pertanyaan ini.']);
                 return;
             }
-            $options = implode('|', array_map('trim', explode("\n", $options_str)));
+            // Convert newline-separated options to JSON array
+            $options = json_encode(array_map('trim', explode("\n", $options_str)));
         }
 
         // Get max order
@@ -89,10 +92,10 @@ class Survey_question extends MY_Controller {
         $data = [
             'survey_id' => $survey_id,
             'question_text' => $this->input->post('question_text'),
-            'type' => $type,
+            'question_type' => $question_type,
             'options' => $options,
             'is_required' => $this->input->post('is_required') ?? 0,
-            'is_core' => 0,
+            'is_belma_inti' => 0,
             'order' => $max_order + 1
         ];
 
@@ -120,7 +123,7 @@ class Survey_question extends MY_Controller {
         }
 
         // BR-SUR-001: Pertanyaan inti tidak dapat diubah
-        if ($question->is_core == 1) {
+        if ($question->is_belma_inti == 1) {
             $this->session->set_flashdata('error', 'Pertanyaan inti tidak dapat diubah oleh Admin Prodi.');
             redirect('survey_builder/questions/' . $survey_id);
         }
@@ -128,17 +131,19 @@ class Survey_question extends MY_Controller {
         $data['survey'] = $survey;
         $data['question'] = $question;
         $data['question_types'] = [
-            'short_answer' => 'Jawaban Singkat',
-            'long_answer' => 'Jawaban Panjang',
-            'multiple_choice' => 'Pilihan Ganda',
-            'dropdown' => 'Dropdown',
-            'checkbox' => 'Checkbox',
-            'rating' => 'Rating (1-5)',
+            'text' => 'Jawaban Singkat (Text)',
+            'textarea' => 'Jawaban Panjang (Textarea)',
+            'number' => 'Angka',
             'date' => 'Tanggal',
-            'number' => 'Angka'
+            'radio' => 'Pilihan Ganda (Radio)',
+            'checkbox' => 'Checkbox',
+            'dropdown' => 'Dropdown',
+            'matrix' => 'Matriks',
+            'file' => 'Upload File',
+            'scale_likert' => 'Skala Likert'
         ];
         
-        $this->load->view('survey_builder/question_edit', $data);
+        $this->load->view('survey_builder/question_form', $data);
     }
 
     public function update($survey_id, $question_id) {
@@ -159,14 +164,14 @@ class Survey_question extends MY_Controller {
         }
 
         // BR-SUR-001: Pertanyaan inti tidak dapat diubah
-        if ($question->is_core == 1) {
+        if ($question->is_belma_inti == 1) {
             $this->output->set_status_header(403);
             echo json_encode(['success' => false, 'message' => 'Pertanyaan inti tidak dapat diubah.']);
             return;
         }
 
         $this->form_validation->set_rules('question_text', 'Pertanyaan', 'required|trim');
-        $this->form_validation->set_rules('type', 'Tipe Pertanyaan', 'required|in_list[short_answer,long_answer,multiple_choice,dropdown,checkbox,rating,date,number]');
+        $this->form_validation->set_rules('question_type', 'Tipe Pertanyaan', 'required|in_list[text,textarea,number,date,radio,checkbox,dropdown,matrix,file,scale_likert]');
         $this->form_validation->set_rules('is_required', 'Wajib Diisi', 'numeric|in_list[0,1]');
 
         if ($this->form_validation->run() == FALSE) {
@@ -175,22 +180,22 @@ class Survey_question extends MY_Controller {
             return;
         }
 
-        $type = $this->input->post('type');
+        $question_type = $this->input->post('question_type');
         $options = null;
         
-        if (in_array($type, ['multiple_choice', 'dropdown', 'checkbox'])) {
+        if (in_array($question_type, ['radio', 'checkbox', 'dropdown'])) {
             $options_str = $this->input->post('options');
             if (empty($options_str)) {
                 $this->output->set_status_header(400);
                 echo json_encode(['success' => false, 'message' => 'Opsi harus diisi.']);
                 return;
             }
-            $options = implode('|', array_map('trim', explode("\n", $options_str)));
+            $options = json_encode(array_map('trim', explode("\n", $options_str)));
         }
 
         $data = [
             'question_text' => $this->input->post('question_text'),
-            'type' => $type,
+            'question_type' => $question_type,
             'options' => $options,
             'is_required' => $this->input->post('is_required') ?? 0,
             'updated_at' => date('Y-m-d H:i:s')
@@ -219,7 +224,7 @@ class Survey_question extends MY_Controller {
         }
 
         // BR-SUR-001: Pertanyaan inti tidak dapat dihapus
-        if ($question->is_core == 1) {
+        if ($question->is_belma_inti == 1) {
             $this->output->set_status_header(403);
             echo json_encode(['success' => false, 'message' => 'Pertanyaan inti tidak dapat dihapus.']);
             return;
