@@ -91,30 +91,42 @@
                     <p class="text-muted text-center py-4">Belum ada pertanyaan. Tambahkan pertanyaan pertama Anda!</p>
                 <?php else: ?>
                     <?php foreach ($questions as $q): ?>
-                        <div class="question-card card mb-2 <?= $q->is_core ? 'border-danger' : '' ?>" data-id="<?= $q->id ?>">
+                        <?php 
+                        // Pastikan $q adalah array dan memiliki key yang diperlukan
+                        if (!is_array($q)) continue;
+                        $question_id = $q['id'] ?? null;
+                        $question_type = $q['question_type'] ?? 'text';
+                        $question_text = $q['question_text'] ?? '';
+                        $is_belma_inti = $q['is_belma_inti'] ?? 0;
+                        $question_order = $q['order'] ?? 0;
+                        $options = $q['options'] ?? null;
+                        
+                        if (!$question_id) continue;
+                        ?>
+                        <div class="question-card card mb-2 <?= $is_belma_inti ? 'border-danger' : '' ?>" data-id="<?= $question_id ?>">
                             <div class="card-body p-3">
                                 <div class="d-flex align-items-start">
                                     <span class="me-3 text-muted"><i class="bi bi-arrows-move"></i></span>
                                     <div class="flex-grow-1">
                                         <div class="mb-2">
-                                            <span class="badge bg-secondary"><?= strtoupper($q->type) ?></span>
-                                            <?php if ($q->is_core): ?>
+                                            <span class="badge bg-secondary"><?= strtoupper($question_type) ?></span>
+                                            <?php if ($is_belma_inti): ?>
                                                 <span class="badge bg-danger"><i class="bi bi-lock"></i> CORE</span>
                                             <?php endif; ?>
-                                            <span class="badge bg-light text-dark">Order: <?= $q->order ?></span>
+                                            <span class="badge bg-light text-dark">Order: <?= $question_order ?></span>
                                         </div>
-                                        <p class="mb-2"><strong><?= htmlspecialchars($q->question_text) ?></strong></p>
-                                        <?php if ($q->options): ?>
-                                            <small class="text-muted">Opsi: <?= str_replace('|', ', ', htmlspecialchars($q->options)) ?></small>
+                                        <p class="mb-2"><strong><?= htmlspecialchars($question_text) ?></strong></p>
+                                        <?php if ($options): ?>
+                                            <small class="text-muted">Opsi: <?= implode(', ', json_decode($options, true) ?? []) ?></small>
                                         <?php endif; ?>
                                     </div>
                                     <div class="ms-3">
-                                        <?php if (!$q->is_core): ?>
-                                            <a href="<?= site_url('survey/question/edit/' . $survey->id . '/' . $q->id) ?>" 
+                                        <?php if (!$is_belma_inti): ?>
+                                            <a href="<?= site_url('survey/question/edit/' . $survey->id . '/' . $question_id) ?>" 
                                                class="btn btn-sm btn-outline-primary">
                                                 <i class="bi bi-pencil"></i>
                                             </a>
-                                            <button onclick="deleteQuestion(<?= $q->id ?>)" class="btn btn-sm btn-outline-danger">
+                                            <button onclick="deleteQuestion(<?= $question_id ?>)" class="btn btn-sm btn-outline-danger">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         <?php else: ?>

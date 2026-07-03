@@ -173,12 +173,13 @@ class Surveys extends Admin_Controller {
             $this->survey_model->update($id, $data);
 
             // Audit log
-            log_tracer_audit(
-                'surveys',
-                $id,
+            audit_log(
                 'update',
+                'surveys',
                 'Survey updated: ' . $data['title'],
-                $this->session->userdata('user_id')
+                $this->session->userdata('user_id'),
+                null,
+                $data
             );
 
             $this->session->set_flashdata('success', 'Survey berhasil diperbarui!');
@@ -205,12 +206,13 @@ class Surveys extends Admin_Controller {
         $this->survey_model->delete($id);
 
         // Audit log
-        log_tracer_audit(
-            'surveys',
-            $id,
+        audit_log(
             'delete',
+            'surveys',
             'Survey deleted: ' . $survey_title,
-            $this->session->userdata('user_id')
+            $this->session->userdata('user_id'),
+            null,
+            ['id' => $id, 'title' => $survey_title]
         );
 
         $this->session->set_flashdata('success', 'Survey berhasil dihapus!');
@@ -250,12 +252,13 @@ class Surveys extends Admin_Controller {
         $this->survey_model->update($id, $data);
 
         // Audit log
-        log_tracer_audit(
-            'surveys',
-            $id,
+        audit_log(
             'publish',
+            'surveys',
             'Survey published: ' . $survey->title,
-            $this->session->userdata('user_id')
+            $this->session->userdata('user_id'),
+            null,
+            ['id' => $id, 'title' => $survey->title, 'status' => 'published']
         );
 
         echo json_encode(['success' => true, 'message' => 'Survey berhasil dipublikasikan!']);
