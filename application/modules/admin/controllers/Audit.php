@@ -31,14 +31,14 @@ class Audit extends Admin_Controller {
         $data['page_title'] = 'Audit Trail System';
         $data['page_subtitle'] = 'Monitoring Aktivitas Sistem';
         
-        // Ambil list module unik untuk dropdown filter
-        $this->db->select('table_name');
+        // Ambil list module unik untuk dropdown filter (dari kolom module)
+        $this->db->select('module');
         $this->db->distinct();
-        $this->db->where('table_name IS NOT NULL');
-        $this->db->where('table_name !=', '');
-        $this->db->order_by('table_name', 'ASC');
+        $this->db->where('module IS NOT NULL');
+        $this->db->where('module !=', '');
+        $this->db->order_by('module', 'ASC');
         $modules = $this->db->get('activity_logs')->result_array();
-        $data['modules'] = array_column($modules, 'table_name');
+        $data['modules'] = array_column($modules, 'module');
         
         // Ambil list action unik
         $this->db->select('action');
@@ -92,7 +92,7 @@ class Audit extends Admin_Controller {
         
         // Apply Filters
         if ($filter_module) {
-            $this->db->where('al.table_name', $filter_module);
+            $this->db->where('al.module', $filter_module);
         }
         if ($filter_action) {
             $this->db->where('al.action', $filter_action);
@@ -112,7 +112,7 @@ class Audit extends Admin_Controller {
             $this->db->group_start();
             $this->db->like('al.new_values', $search);
             $this->db->or_like('u.username', $search);
-            $this->db->or_like('al.table_name', $search);
+            $this->db->or_like('al.module', $search);
             $this->db->or_like('al.ip_address', $search);
             $this->db->group_end();
         }
@@ -128,7 +128,7 @@ class Audit extends Admin_Controller {
         
         // Re-apply filters untuk data retrieval
         if ($filter_module) {
-            $this->db->where('al.table_name', $filter_module);
+            $this->db->where('al.module', $filter_module);
         }
         if ($filter_action) {
             $this->db->where('al.action', $filter_action);
@@ -146,7 +146,7 @@ class Audit extends Admin_Controller {
             $this->db->group_start();
             $this->db->like('al.new_values', $search);
             $this->db->or_like('u.username', $search);
-            $this->db->or_like('al.table_name', $search);
+            $this->db->or_like('al.module', $search);
             $this->db->or_like('al.ip_address', $search);
             $this->db->group_end();
         }
@@ -154,7 +154,7 @@ class Audit extends Admin_Controller {
         // Ordering
         $order_col = $this->input->get('order')[0]['column'] ?? 0;
         $order_dir = $this->input->get('order')[0]['dir'] ?? 'desc';
-        $columns = ['al.created_at', 'u.username', 'al.action', 'al.table_name', 'al.new_values', 'al.ip_address'];
+        $columns = ['al.created_at', 'u.username', 'al.action', 'al.module', 'al.new_values', 'al.ip_address'];
         $this->db->order_by($columns[$order_col] ?? 'al.created_at', $order_dir);
         
         // Pagination
@@ -169,7 +169,7 @@ class Audit extends Admin_Controller {
             $nestedData[] = date('d M Y H:i:s', strtotime($row['created_at']));
             $nestedData[] = $row['username'] ? '<strong>' . htmlspecialchars($row['username']) . '</strong><br><small class="text-muted">' . $row['role'] . '</small>' : '<em class="text-muted">System</em>';
             $nestedData[] = '<span class="badge bg-' . $this->_get_badge_color($row['action']) . '">' . strtoupper(htmlspecialchars($row['action'])) . '</span>';
-            $nestedData[] = htmlspecialchars($row['table_name'] ?? '-');
+            $nestedData[] = htmlspecialchars($row['module'] ?? '-');
             
             // Extract description from new_values JSON
             $description = '-';
@@ -203,11 +203,26 @@ class Audit extends Admin_Controller {
      * @return JSON
      */
     public function view($id) {
-        $log = $this->db->get_where('activity_logs', ['id' => $id])->row();
+        $this->db->select('al.*, u.username, u.role');
+        $this->db->from('activity_logs al');
+        $this->db->join('users u', 'al.user_id = u.id', 'left');
+        $this->db->where('al.id', $id);
+        $log = $this->db->get()->row();
         
         if (!$log) {
             echo json_encode(['success' => false, 'message' => 'Log not found']);
             return;
+        }
+
+        // Extract description from new_values JSON
+        $description = '-';
+        if (!empty($log->new_values)) {
+            $decoded = json_decode($log->new_values, true);
+            if (is_array($decoded)) {
+                $description = $decoded['description'] ?? json_encode($decoded, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            } else {
+                $description = $log->new_values;
+            }
         }
 
         $response = [
@@ -220,9 +235,10 @@ class Audit extends Admin_Controller {
                 'ip_address' => $log->ip_address,
                 'user_agent' => $log->user_agent,
                 'action' => $log->action,
-                'table_name' => $log->table_name,
+                'module' => $log->module ?? '-',
+                'table_name' => $log->table_name ?? '-',
                 'record_id' => $log->record_id,
-                'description' => $log->new_values,
+                'description' => $description,
                 'old_values' => $log->old_values,
                 'new_values' => $log->new_values
             ]
@@ -254,7 +270,7 @@ class Audit extends Admin_Controller {
         $this->db->join('users u', 'al.user_id = u.id', 'left');
         
         if ($filter_module) {
-            $this->db->where('al.table_name', $filter_module);
+            $this->db->where('al.module', $filter_module);
         }
         if ($filter_action) {
             $this->db->where('al.action', $filter_action);
@@ -319,7 +335,7 @@ class Audit extends Admin_Controller {
                 echo '<Cell><Data ss:Type="String">' . htmlspecialchars($log['username'] ?? 'System') . '</Data></Cell>';
                 echo '<Cell><Data ss:Type="String">' . htmlspecialchars($log['role'] ?? '-') . '</Data></Cell>';
                 echo '<Cell><Data ss:Type="String">' . htmlspecialchars($log['action']) . '</Data></Cell>';
-                echo '<Cell><Data ss:Type="String">' . htmlspecialchars($log['table_name'] ?? '-') . '</Data></Cell>';
+                echo '<Cell><Data ss:Type="String">' . htmlspecialchars($log['module'] ?? '-') . '</Data></Cell>';
                 echo '<Cell><Data ss:Type="String">' . htmlspecialchars($description) . '</Data></Cell>';
                 echo '<Cell><Data ss:Type="String">' . htmlspecialchars($log['ip_address']) . '</Data></Cell>';
                 echo '</Row>';
