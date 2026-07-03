@@ -26,11 +26,12 @@
                 <table id="users_table" class="table table-striped table-hover table-bordered" style="width:100%">
                     <thead class="table-dark">
                         <tr>
+                            <th width="5%" class="text-center">No</th>
                             <th width="20%"><i class="bi bi-person me-1"></i> Username</th>
                             <th width="25%"><i class="bi bi-envelope me-1"></i> Email</th>
                             <th width="15%"><i class="bi bi-shield me-1"></i> Role</th>
                             <th width="15%"><i class="bi bi-calendar me-1"></i> Created</th>
-                            <th width="25%" class="text-center"><i class="bi bi-gear me-1"></i> Actions</th>
+                            <th width="20%" class="text-center"><i class="bi bi-gear me-1"></i> Actions</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -59,6 +60,9 @@ $(document).ready(function() {
             type: 'GET'
         },
         columns: [
+            { data: null, orderable: false, className: 'text-center', render: function(data, type, row, meta) {
+                return meta.row + meta.settings._iDisplayStart + 1;
+            }},
             { data: 0, orderable: true },
             { data: 1, orderable: true },
             { data: 2, orderable: false },
