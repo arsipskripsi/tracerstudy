@@ -23,21 +23,23 @@
         <div class="card-body">
             <?php if (!empty($alumni)): ?>
             <div class="table-responsive">
-                <table class="table table-striped table-hover">
+                <table class="table table-striped table-hover" id="alumniTable">
                     <thead class="table-dark">
                         <tr>
+                            <th width="5%">No</th>
                             <th>NIM</th>
                             <th>Nama Lengkap</th>
                             <th>Program Studi</th>
                             <th>Tanggal Lulus</th>
                             <th>Email</th>
                             <th>Status</th>
-                            <th>Aksi</th>
+                            <th width="10%" class="text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($alumni as $item): ?>
+                        <?php $no = 1; foreach ($alumni as $item): ?>
                         <tr>
+                            <td class="text-center"><?= $no++ ?></td>
                             <td><?= htmlspecialchars($item['nim'] ?? '-') ?></td>
                             <td><?= htmlspecialchars($item['nama_lengkap'] ?? '-') ?></td>
                             <td><?= htmlspecialchars($item['prodi_nama'] ?? '-') ?></td>
@@ -50,13 +52,27 @@
                                 <span class="badge bg-warning">Belum Terdaftar</span>
                                 <?php endif; ?>
                             </td>
-                            <td>
-                                <a href="<?= base_url('admin/alumni/edit/' . $item['id']) ?>" class="btn btn-sm btn-outline-primary">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
-                                <button class="btn btn-sm btn-outline-danger" onclick="deleteAlumni(<?= $item['id'] ?>)">
-                                    <i class="bi bi-trash"></i>
-                                </button>
+                            <td class="text-center">
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="bi bi-three-dots-vertical"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <a class="dropdown-item" href="<?= base_url('admin/alumni/edit/' . $item['id']) ?>">
+                                                <i class="bi bi-pencil me-2"></i>Edit
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <hr class="dropdown-divider">
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item text-danger" href="#" onclick="deleteAlumni(<?= $item['id'] ?>); return false;">
+                                                <i class="bi bi-trash me-2"></i>Hapus
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
                             </td>
                         </tr>
                         <?php endforeach; ?>
@@ -73,57 +89,76 @@
     </div>
 </div>
 
+<!-- DataTables CSS -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
-<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<!-- DataTables JS -->
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+
+<!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-// Delete alumni function with SweetAlert
-function deleteAlumni(id) {
-    Swal.fire({
-        title: 'Apakah Anda yakin?',
-        text: "Data alumni yang dihapus tidak dapat dikembalikan!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Ya, hapus!',
-        cancelButtonText: 'Batal'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            $.ajax({
-                url: '<?php echo site_url("admin/alumni/delete"); ?>/' + id,
-                type: 'POST',
-                data: {
-                    '<?php echo $this->security->get_csrf_token_name(); ?>': '<?php echo $this->security->get_csrf_hash(); ?>'
-                },
-                dataType: 'json',
-                success: function(res) {
-                    if (res.success) {
-                        Swal.fire(
-                            'Terhapus!',
-                            res.message,
-                            'success'
-                        ).then(() => {
-                            location.reload();
-                        });
-                    } else {
-                        Swal.fire(
-                            'Gagal!',
-                            res.message,
-                            'error'
-                        );
-                    }
-                },
-                error: function() {
-                    Swal.fire(
-                        'Error!',
-                        'Terjadi kesalahan saat menghapus alumni',
-                        'error'
-                    );
-                }
+    $(document).ready(function() {
+        // Initialize alumni table with numbering
+        if ($('#alumniTable').length) {
+            $('#alumniTable').DataTable({
+                order: [],
+                columnDefs: [{
+                    orderable: false,
+                    targets: [0]
+                }]
             });
         }
     });
-}
+    
+    // Delete alumni function with SweetAlert
+    function deleteAlumni(id) {
+        Swal.fire({
+            title: 'Apakah Anda yakin?',
+            text: "Data alumni yang dihapus tidak dapat dikembalikan!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Ya, hapus!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '<?php echo site_url("admin/alumni/delete"); ?>/' + id,
+                    type: 'POST',
+                    data: {
+                        '<?php echo $this->security->get_csrf_token_name(); ?>': '<?php echo $this->security->get_csrf_hash(); ?>'
+                    },
+                    dataType: 'json',
+                    success: function(res) {
+                        if (res.success) {
+                            Swal.fire(
+                                'Terhapus!',
+                                res.message,
+                                'success'
+                            ).then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire(
+                                'Gagal!',
+                                res.message,
+                                'error'
+                            );
+                        }
+                    },
+                    error: function() {
+                        Swal.fire(
+                            'Error!',
+                            'Terjadi kesalahan saat menghapus alumni',
+                            'error'
+                        );
+                    }
+                });
+            }
+        });
+    }
 </script>
