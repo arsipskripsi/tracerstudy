@@ -82,6 +82,15 @@ class Audit extends Admin_Controller {
         $this->db->from('activity_logs al');
         $this->db->join('users u', 'al.user_id = u.id', 'left');
 
+        // Hitung total records (tanpa filter apapun)
+        $total_records = $this->db->count_all_results('activity_logs');
+        
+        // Reset dan rebuild query untuk apply filters
+        $this->db->reset_query();
+        $this->db->select('al.*, u.username, u.role');
+        $this->db->from('activity_logs al');
+        $this->db->join('users u', 'al.user_id = u.id', 'left');
+        
         // Apply Filters
         if ($filter_module) {
             $this->db->where('al.table_name', $filter_module);
@@ -109,16 +118,13 @@ class Audit extends Admin_Controller {
             $this->db->group_end();
         }
 
-        // Hitung total records sebelum filter
-        $total_records = $this->db->count_all_results('activity_logs', false);
-
-        // Reset dan rebuild query untuk filtered count
+        // Hitung filtered records - perlu rebuild query karena count_all_results mengubah state
         $this->db->reset_query();
         $this->db->select('al.*, u.username, u.role');
         $this->db->from('activity_logs al');
         $this->db->join('users u', 'al.user_id = u.id', 'left');
         
-        // Re-apply filters
+        // Re-apply filters untuk count
         if ($filter_module) {
             $this->db->where('al.table_name', $filter_module);
         }
@@ -144,6 +150,37 @@ class Audit extends Admin_Controller {
         }
         
         $filtered_records = $this->db->count_all_results('', false);
+        
+        // Reset lagi dan rebuild untuk query utama (dengan order dan limit)
+        $this->db->reset_query();
+        $this->db->select('al.*, u.username, u.role');
+        $this->db->from('activity_logs al');
+        $this->db->join('users u', 'al.user_id = u.id', 'left');
+        
+        // Re-apply filters untuk data retrieval
+        if ($filter_module) {
+            $this->db->where('al.table_name', $filter_module);
+        }
+        if ($filter_action) {
+            $this->db->where('al.action', $filter_action);
+        }
+        if ($filter_user) {
+            $this->db->where('al.user_id', $filter_user);
+        }
+        if ($date_from) {
+            $this->db->where('al.created_at >=', $date_from . ' 00:00:00');
+        }
+        if ($date_to) {
+            $this->db->where('al.created_at <=', $date_to . ' 23:59:59');
+        }
+        if (!empty($search)) {
+            $this->db->group_start();
+            $this->db->like('al.description', $search);
+            $this->db->or_like('u.username', $search);
+            $this->db->or_like('al.table_name', $search);
+            $this->db->or_like('al.ip_address', $search);
+            $this->db->group_end();
+        }
         
         // Ordering
         $order_col = $this->input->get('order')[0]['column'] ?? 0;
