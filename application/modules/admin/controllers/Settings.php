@@ -109,7 +109,7 @@ class Settings extends Admin_Controller {
         }
         
         // Log activity
-        log_activity($this->auth_lib->getId(), 'update', 'system_settings', 'Pengaturan sistem diperbarui', $this->input->ip_address());
+        log_activity($this->auth_lib->getUserId(), 'update', 'system_settings', 'Pengaturan sistem diperbarui', $this->input->ip_address());
         
         $this->session->set_flashdata('success', "Berhasil memperbarui {$updated} pengaturan.");
         redirect('admin/settings');
@@ -148,7 +148,7 @@ class Settings extends Admin_Controller {
         }
         
         // Log activity
-        log_activity($this->auth_lib->getId(), 'update', 'system_settings', 'Pengaturan sistem direset ke default', $this->input->ip_address());
+        log_activity($this->auth_lib->getUserId(), 'update', 'system_settings', 'Pengaturan sistem direset ke default', $this->input->ip_address());
         
         $this->session->set_flashdata('info', 'Pengaturan telah direset ke nilai default.');
         redirect('admin/settings');
