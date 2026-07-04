@@ -94,6 +94,8 @@ class Survey_question extends MY_Controller {
             'question_text' => $this->input->post('question_text'),
             'question_type' => $question_type,
             'options' => $options,
+            'help_text' => $this->input->post('help_text') ?? null,
+            'placeholder' => $this->input->post('placeholder') ?? null,
             'is_required' => $this->input->post('is_required') ?? 0,
             'is_belma_inti' => 0,
             'order' => $max_order + 1
@@ -144,6 +146,24 @@ class Survey_question extends MY_Controller {
         ];
         
         $this->load->view('survey_builder/question_form', $data);
+    }
+
+    /**
+     * Get single question data via AJAX
+     */
+    public function get_question($question_id) {
+        $question = $this->survey_question_model->get_by_id($question_id);
+        
+        if (!$question) {
+            $this->output->set_status_header(404);
+            echo json_encode(['success' => false, 'message' => 'Pertanyaan tidak ditemukan.']);
+            return;
+        }
+
+        echo json_encode([
+            'success' => true,
+            'question' => $question
+        ]);
     }
 
     public function update($survey_id, $question_id) {
@@ -197,6 +217,8 @@ class Survey_question extends MY_Controller {
             'question_text' => $this->input->post('question_text'),
             'question_type' => $question_type,
             'options' => $options,
+            'help_text' => $this->input->post('help_text') ?? null,
+            'placeholder' => $this->input->post('placeholder') ?? null,
             'is_required' => $this->input->post('is_required') ?? 0,
             'updated_at' => date('Y-m-d H:i:s')
         ];
