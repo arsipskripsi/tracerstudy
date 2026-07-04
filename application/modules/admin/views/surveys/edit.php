@@ -76,9 +76,9 @@
         <div class="tab-pane fade" id="questions" role="tabpanel">
             <div class="d-flex justify-content-between mb-3">
                 <h5>Daftar Pertanyaan</h5>
-                <a href="<?= site_url('admin/surveys/question/create/' . $survey->id) ?>" class="btn btn-primary btn-sm">
+                <button type="button" id="btnAddQuestion" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#questionModal" onclick="openAddQuestionModal()">
                     <i class="bi bi-plus"></i> Tambah Pertanyaan
-                </a>
+                </button>
             </div>
 
             <div class="alert alert-info">
@@ -122,10 +122,9 @@
                                     </div>
                                     <div class="ms-3">
                                         <?php if (!$is_belma_inti): ?>
-                                            <a href="<?= site_url('admin/surveys/question/edit/' . $survey->id . '/' . $question_id) ?>" 
-                                               class="btn btn-sm btn-outline-primary">
+                                            <button onclick="openEditQuestionModal(<?= $question_id ?>)" class="btn btn-sm btn-outline-primary">
                                                 <i class="bi bi-pencil"></i>
-                                            </a>
+                                            </button>
                                             <button onclick="deleteQuestion(<?= $question_id ?>)" class="btn btn-sm btn-outline-danger">
                                                 <i class="bi bi-trash"></i>
                                             </button>
@@ -305,4 +304,210 @@ function deleteLogic(id) {
         }
     });
 }
+
+// Modal functions for question management
+var currentMode = 'add'; // 'add' or 'edit'
+
+function openAddQuestionModal() {
+    currentMode = 'add';
+    $('#questionId').val('');
+    $('#question_text').val('');
+    $('#question_type').val('');
+    $('#options').val('');
+    $('#help_text').val('');
+    $('#placeholder').val('');
+    $('#is_required').prop('checked', false);
+    $('#options_container').hide();
+    $('#options').removeAttr('required');
+    $('#modalTitle').text('Tambah Pertanyaan');
+    $('#saveButtonText').text('Simpan Pertanyaan');
+}
+
+function openEditQuestionModal(questionId) {
+    currentMode = 'edit';
+    $.ajax({
+        url: '<?= site_url('admin/surveys/question/get_question/') ?>' + questionId,
+        type: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            if (response.success) {
+                var q = response.question;
+                $('#questionId').val(q.id);
+                $('#question_text').val(q.question_text);
+                $('#question_type').val(q.question_type);
+                
+                // Parse options if exists
+                if (q.options) {
+                    try {
+                        var opts = JSON.parse(q.options);
+                        $('#options').val(opts.join('\n'));
+                    } catch(e) {
+                        $('#options').val(q.options);
+                    }
+                    if (['radio', 'checkbox', 'dropdown'].includes(q.question_type)) {
+                        $('#options_container').show();
+                        $('#options').attr('required', 'required');
+                    } else {
+                        $('#options_container').hide();
+                        $('#options').removeAttr('required');
+                    }
+                } else {
+                    $('#options').val('');
+                    $('#options_container').hide();
+                    $('#options').removeAttr('required');
+                }
+                
+                $('#help_text').val(q.help_text || '');
+                $('#placeholder').val(q.placeholder || '');
+                $('#is_required').prop('checked', q.is_required == 1);
+                
+                $('#modalTitle').text('Edit Pertanyaan');
+                $('#saveButtonText').text('Update Pertanyaan');
+                
+                // Show modal after loading data
+                var modal = new bootstrap.Modal(document.getElementById('questionModal'));
+                modal.show();
+            } else {
+                alert('Error: ' + response.message);
+            }
+        },
+        error: function(xhr) {
+            const msg = xhr.responseJSON ? xhr.responseJSON.message : 'Terjadi kesalahan';
+            alert('Error: ' + msg);
+        }
+    });
+}
+
+function saveQuestion() {
+    var questionId = $('#questionId').val();
+    var surveyId = <?= $survey->id ?>;
+    var formData = $('#questionForm').serialize();
+    
+    // Validation
+    var questionText = $('#question_text').val().trim();
+    var questionType = $('#question_type').val();
+    
+    if (!questionText) {
+        alert('Teks pertanyaan harus diisi!');
+        return;
+    }
+    
+    if (!questionType) {
+        alert('Tipe pertanyaan harus dipilih!');
+        return;
+    }
+    
+    if (['radio', 'checkbox', 'dropdown'].includes(questionType)) {
+        var options = $('#options').val().trim();
+        if (!options) {
+            alert('Opsi jawaban harus diisi untuk tipe pertanyaan ini!');
+            return;
+        }
+    }
+    
+    var url = currentMode === 'add' 
+        ? '<?= site_url('admin/surveys/question/store/') ?>' + surveyId
+        : '<?= site_url('admin/surveys/question/update/') ?>' + surveyId + '/' + questionId;
+    
+    $.ajax({
+        url: url,
+        type: 'POST',
+        data: formData,
+        dataType: 'json',
+        success: function(response) {
+            if (response.success) {
+                var modalEl = document.getElementById('questionModal');
+                var modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) modal.hide();
+                location.reload();
+            } else {
+                alert('Error: ' + response.message);
+            }
+        },
+        error: function(xhr) {
+            const msg = xhr.responseJSON ? xhr.responseJSON.message : 'Terjadi kesalahan';
+            alert('Error: ' + msg);
+        }
+    });
+}
+
+// Show/hide options field based on question type in modal
+$('#question_type').on('change', function() {
+    var selectedType = $(this).val();
+    if (['radio', 'checkbox', 'dropdown'].includes(selectedType)) {
+        $('#options_container').slideDown();
+        $('#options').attr('required', 'required');
+    } else {
+        $('#options_container').slideUp();
+        $('#options').removeAttr('required');
+    }
+});
 </script>
+
+<!-- Modal Tambah/Edit Pertanyaan -->
+<div class="modal fade" id="questionModal" tabindex="-1" aria-labelledby="questionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="questionModalLabel"><i class="bi bi-question-circle"></i> <span id="modalTitle">Tambah Pertanyaan</span></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="questionForm">
+                    <input type="hidden" id="questionId" name="question_id" value="">
+                    
+                    <div class="mb-3">
+                        <label for="question_text" class="form-label">Teks Pertanyaan *</label>
+                        <textarea name="question_text" id="question_text" class="form-control" rows="3" required placeholder="Masukkan teks pertanyaan"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="question_type" class="form-label">Tipe Pertanyaan *</label>
+                        <select name="question_type" id="question_type" class="form-select" required>
+                            <option value="">-- Pilih Tipe --</option>
+                            <option value="text">Jawaban Singkat (Text)</option>
+                            <option value="textarea">Jawaban Panjang (Textarea)</option>
+                            <option value="number">Angka</option>
+                            <option value="date">Tanggal</option>
+                            <option value="radio">Pilihan Ganda (Radio)</option>
+                            <option value="checkbox">Checkbox</option>
+                            <option value="dropdown">Dropdown</option>
+                            <option value="matrix">Matriks</option>
+                            <option value="file">Upload File</option>
+                            <option value="scale_likert">Skala Likert</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3" id="options_container" style="display: none;">
+                        <label for="options" class="form-label">Opsi Jawaban (satu per baris) *</label>
+                        <textarea name="options" id="options" class="form-control" rows="5" placeholder="Contoh:&#10;Sangat Puas&#10;Puas&#10;Cukup Puas&#10;Kurang Puas&#10;Sangat Kurang Puas"></textarea>
+                        <small class="form-text text-muted">Masukkan setiap opsi pada baris terpisah</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="help_text" class="form-label">Teks Bantuan (Opsional)</label>
+                        <input type="text" name="help_text" id="help_text" class="form-control" placeholder="Teks bantuan untuk membantu responden">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="placeholder" class="form-label">Placeholder (Opsional)</label>
+                        <input type="text" name="placeholder" id="placeholder" class="form-control" placeholder="Teks placeholder untuk input">
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" name="is_required" id="is_required" class="form-check-input" value="1">
+                        <label class="form-check-label" for="is_required">Wajib Diisi</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle"></i> Batal
+                </button>
+                <button type="button" class="btn btn-primary" onclick="saveQuestion()">
+                    <i class="bi bi-save"></i> <span id="saveButtonText">Simpan Pertanyaan</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
