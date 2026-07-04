@@ -42,9 +42,12 @@ class Survey_model extends MY_Model {
     /**
      * Insert new survey
      */
-    public function insert($data) {
+    public function insert($data, $return_id = TRUE) {
         $this->db->insert('surveys', $data);
-        return $this->db->insert_id();
+        if ($return_id) {
+            return $this->db->insert_id();
+        }
+        return $this->db->affected_rows();
     }
 
     /**
