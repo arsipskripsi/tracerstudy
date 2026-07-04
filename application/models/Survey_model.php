@@ -233,4 +233,55 @@ class Survey_model extends CI_Model {
         }
         return null;
     }
+
+    /**
+     * Get max order for questions
+     */
+    public function get_max_order($survey_id) {
+        $this->db->select_max('order');
+        $query = $this->db->get_where('survey_questions', ['survey_id' => $survey_id]);
+        $row = $query->row();
+        return $row->order ?? 0;
+    }
+
+    /**
+     * Get question by ID
+     */
+    public function get_question_by_id($question_id) {
+        return $this->db->get_where('survey_questions', ['id' => $question_id])->row();
+    }
+
+    /**
+     * Update question
+     */
+    public function update_question($question_id, $data) {
+        $this->db->where('id', $question_id);
+        return $this->db->update('survey_questions', $data);
+    }
+
+    /**
+     * Delete question
+     */
+    public function delete_question($question_id) {
+        $this->db->where('id', $question_id);
+        return $this->db->delete('survey_questions');
+    }
+
+    /**
+     * Reorder questions after delete
+     */
+    public function reorder_after_delete($survey_id, $deleted_order) {
+        $this->db->set('order', 'order - 1', false);
+        $this->db->where('survey_id', $survey_id);
+        $this->db->where('order >', $deleted_order);
+        return $this->db->update('survey_questions');
+    }
+
+    /**
+     * Update question order
+     */
+    public function update_question_order($question_id, $order) {
+        $this->db->where('id', $question_id);
+        return $this->db->update('survey_questions', ['order' => $order]);
+    }
 }
