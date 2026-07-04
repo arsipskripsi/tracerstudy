@@ -92,7 +92,7 @@
                 <div class="d-flex justify-content-between mb-3">
                     <h5>Daftar Pertanyaan</h5>
                     <?php if ($survey->status === 'draft'): ?>
-                        <button type="button" class="btn btn-primary btn-sm" onclick="openAddQuestionModalAndShow()">
+                        <button type="button" id="btnAddQuestion" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#questionModal" onclick="openAddQuestionModalAndShow()">
                             <i class="fa fa-plus"></i> Tambah Pertanyaan
                         </button>
                     <?php endif; ?>
@@ -169,7 +169,7 @@
 
     <!-- Modal Tambah/Edit Pertanyaan -->
     <div class="modal fade" id="questionModal" tabindex="-1" role="dialog" aria-labelledby="questionModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title" id="questionModalLabel"><i class="fa fa-question-circle"></i> <span id="modalTitle">Tambah Pertanyaan</span></h5>
@@ -189,7 +189,7 @@
 
                         <div class="mb-3">
                             <label for="question_type" class="form-label">Tipe Pertanyaan *</label>
-                            <select name="question_type" id="question_type" class="form-select" required>
+                            <select name="question_type" id="question_type" class="form-control" required>
                                 <option value="">-- Pilih Tipe --</option>
                                 <option value="text">Jawaban Singkat (Text)</option>
                                 <option value="textarea">Jawaban Panjang (Textarea)</option>
@@ -207,7 +207,7 @@
                         <div class="mb-3" id="options_container" style="display: none;">
                             <label for="options" class="form-label">Opsi Jawaban (satu per baris) *</label>
                             <textarea name="options" id="options" class="form-control" rows="5" placeholder="Contoh:&#10;Sangat Puas&#10;Puas&#10;Cukup Puas&#10;Kurang Puas&#10;Sangat Kurang Puas"></textarea>
-                            <div class="form-text">Masukkan setiap opsi pada baris terpisah</div>
+                            <small class="form-text text-muted">Masukkan setiap opsi pada baris terpisah</small>
                         </div>
 
                         <div class="mb-3">
@@ -243,6 +243,13 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         $(document).ready(function() {
+            // Initialize modal on page load
+            $('#questionModal').modal({
+                show: false,
+                backdrop: 'static',
+                keyboard: true
+            });
+            
             // Enable drag-drop reordering
             $('#questions-list').sortable({
                 handle: '.question-handle',
@@ -381,8 +388,12 @@
         var currentMode = 'add'; // 'add' or 'edit'
 
         function openAddQuestionModalAndShow() {
+            console.log('Opening add question modal...');
             openAddQuestionModal();
+            // Use Bootstrap's native modal show method
             $('#questionModal').modal('show');
+            console.log('Modal should be showing now');
+            return false; // Prevent default button action
         }
 
         function openAddQuestionModal() {
@@ -395,17 +406,21 @@
             $('#placeholder').val('');
             $('#is_required').prop('checked', false);
             $('#options_container').hide();
+            $('#options').removeAttr('required');
             $('#modalTitle').text('Tambah Pertanyaan');
             $('#saveButtonText').text('Simpan Pertanyaan');
+            console.log('Modal reset for add mode');
         }
 
         function openEditQuestionModal(questionId) {
+            console.log('Opening edit question modal for ID:', questionId);
             currentMode = 'edit';
             $.ajax({
                 url: '<?= site_url('survey_question/get_question/') ?>' + questionId,
                 type: 'GET',
                 dataType: 'json',
                 success: function(response) {
+                    console.log('Edit response:', response);
                     if (response.success) {
                         var q = response.question;
                         $('#questionId').val(q.id);
@@ -422,9 +437,15 @@
                             }
                             if (['radio', 'checkbox', 'dropdown'].includes(q.question_type)) {
                                 $('#options_container').show();
+                                $('#options').attr('required', 'required');
+                            } else {
+                                $('#options_container').hide();
+                                $('#options').removeAttr('required');
                             }
                         } else {
                             $('#options').val('');
+                            $('#options_container').hide();
+                            $('#options').removeAttr('required');
                         }
                         
                         $('#help_text').val(q.help_text || '');
@@ -434,6 +455,7 @@
                         $('#modalTitle').text('Edit Pertanyaan');
                         $('#saveButtonText').text('Update Pertanyaan');
                         
+                        // Show modal after loading data
                         $('#questionModal').modal('show');
                     } else {
                         alert('Error: ' + response.message);
