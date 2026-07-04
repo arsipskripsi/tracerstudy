@@ -33,7 +33,7 @@ class Survey_question extends MY_Controller {
         
         if (!$survey || $survey->status === 'published') {
             $this->session->set_flashdata('error', 'Survey tidak ditemukan atau sudah dipublikasikan.');
-            redirect('survey_builder/edit/' . $survey_id);
+            redirect('admin/surveys/edit/' . $survey_id);
         }
 
         $data['survey'] = $survey;
@@ -113,7 +113,7 @@ class Survey_question extends MY_Controller {
         
         if (!$survey || $survey->status === 'published') {
             $this->session->set_flashdata('error', 'Survey tidak ditemukan atau sudah dipublikasikan.');
-            redirect('survey_builder/edit/' . $survey_id);
+            redirect('admin/surveys/edit/' . $survey_id);
         }
 
         $question = $this->survey_question_model->get_by_id($question_id);
@@ -125,7 +125,7 @@ class Survey_question extends MY_Controller {
         // BR-SUR-001: Pertanyaan inti tidak dapat diubah
         if ($question->is_belma_inti == 1) {
             $this->session->set_flashdata('error', 'Pertanyaan inti tidak dapat diubah oleh Admin Prodi.');
-            redirect('survey_builder/questions/' . $survey_id);
+            redirect('admin/surveys/edit/' . $survey_id);
         }
 
         $data['survey'] = $survey;

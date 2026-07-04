@@ -76,7 +76,7 @@
         <div class="tab-pane fade" id="questions" role="tabpanel">
             <div class="d-flex justify-content-between mb-3">
                 <h5>Daftar Pertanyaan</h5>
-                <a href="<?= site_url('survey/question/create/' . $survey->id) ?>" class="btn btn-primary btn-sm">
+                <a href="<?= site_url('admin/surveys/question/create/' . $survey->id) ?>" class="btn btn-primary btn-sm">
                     <i class="bi bi-plus"></i> Tambah Pertanyaan
                 </a>
             </div>
@@ -122,7 +122,7 @@
                                     </div>
                                     <div class="ms-3">
                                         <?php if (!$is_belma_inti): ?>
-                                            <a href="<?= site_url('survey/question/edit/' . $survey->id . '/' . $question_id) ?>" 
+                                            <a href="<?= site_url('admin/surveys/question/edit/' . $survey->id . '/' . $question_id) ?>" 
                                                class="btn btn-sm btn-outline-primary">
                                                 <i class="bi bi-pencil"></i>
                                             </a>
@@ -147,7 +147,7 @@
         <div class="tab-pane fade" id="logic" role="tabpanel">
             <div class="d-flex justify-content-between mb-3">
                 <h5>Logic Jump / Conditional Branching</h5>
-                <a href="<?= site_url('survey/logic/create/' . $survey->id) ?>" class="btn btn-primary btn-sm">
+                <a href="<?= site_url('admin/surveys/logic/create/' . $survey->id) ?>" class="btn btn-primary btn-sm">
                     <i class="bi bi-plus"></i> Tambah Logic
                 </a>
             </div>
@@ -186,7 +186,7 @@ $(document).ready(function() {
             });
 
             $.ajax({
-                url: '<?= site_url('survey/question/reorder') ?>',
+                url: '<?= site_url('admin/surveys/question/reorder') ?>',
                 type: 'POST',
                 data: { survey_id: <?= $survey->id ?>, orders: orders },
                 dataType: 'json',
@@ -214,7 +214,7 @@ function deleteQuestion(id) {
     if (!confirm('Apakah Anda yakin ingin menghapus pertanyaan ini?')) return;
 
     $.ajax({
-        url: '<?= site_url('survey/question/delete/' . $survey->id) ?>/' + id,
+        url: '<?= site_url('admin/surveys/question/delete/' . $survey->id) ?>/' + id,
         type: 'DELETE',
         dataType: 'json',
         success: function(response) {
@@ -257,7 +257,7 @@ function publishSurvey(id) {
 
 function loadLogics() {
     $.ajax({
-        url: '<?= site_url('survey/logic/get_logics/' . $survey->id) ?>',
+        url: '<?= site_url('admin/surveys/logic/get_logics/' . $survey->id) ?>',
         type: 'GET',
         dataType: 'json',
         success: function(response) {
@@ -293,7 +293,7 @@ function deleteLogic(id) {
     if (!confirm('Hapus logic jump ini?')) return;
 
     $.ajax({
-        url: '<?= site_url('survey/logic/delete/' . $survey->id) ?>/' + id,
+        url: '<?= site_url('admin/surveys/logic/delete/' . $survey->id) ?>/' + id,
         type: 'DELETE',
         dataType: 'json',
         success: function(response) {

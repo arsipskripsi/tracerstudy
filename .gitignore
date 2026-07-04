@@ -4,32 +4,45 @@
 __pycache__/
 *.o
 *.obj
+dist/
+build/
+target/
 
 # Dependencies
-vendor/
+.venv/
+venv/
 node_modules/
+.julia/
+.zig-cache/
 
 # Logs and temp files
 *.log
 *.tmp
 *.swp
+*.swo
 
 # Environment
 .env
 .env.local
-*.env.*
+.env.*
 
 # Editors
 .vscode/
 .idea/
+*.swp
+*.swo
 
 # OS generated files
 .DS_Store
 Thumbs.db
 
-# CodeIgniter specific
-application/logs/
-application/cache/
-system/database/
-!application/config/database.php
+# Coverage reports
+coverage/
+htmlcov/
+.coverage
+
+# Cache directories
+.mypy_cache/
+.pytest_cache/
+.gradle/
 ```
