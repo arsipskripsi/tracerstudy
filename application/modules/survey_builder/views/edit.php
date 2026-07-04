@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Survey - <?= htmlspecialchars($survey->title) ?></title>
-    <link rel="stylesheet" href="<?= base_url('assets/css/bootstrap.min.css') ?>">
-    <link rel="stylesheet" href="<?= base_url('assets/css/font-awesome.min.css') ?>">
-    <link rel="stylesheet" href="<?= base_url('assets/css/jquery-ui.min.css') ?>">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-ui@1.12.1/themes/smoothness/jquery-ui.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         .question-card { border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-bottom: 10px; background: #fff; cursor: move; }
         .question-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
@@ -54,18 +54,18 @@
 
         <ul class="nav nav-tabs" id="surveyTabs" role="tablist">
             <li class="nav-item">
-                <a class="nav-link active" id="info-tab" data-toggle="tab" href="#info" role="tab">
+                <a class="nav-link active" id="info-tab" data-bs-toggle="tab" href="#info" role="tab">
                     <i class="fa fa-info-circle"></i> Informasi Survey
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" id="questions-tab" data-toggle="tab" href="#questions" role="tab">
+                <a class="nav-link" id="questions-tab" data-bs-toggle="tab" href="#questions" role="tab">
                     <i class="fa fa-question-circle"></i> Pertanyaan 
                     <span class="badge badge-primary"><?= count($questions) ?></span>
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" id="logic-tab" data-toggle="tab" href="#logic" role="tab">
+                <a class="nav-link" id="logic-tab" data-bs-toggle="tab" href="#logic" role="tab">
                     <i class="fa fa-random"></i> Logic Jump
                 </a>
             </li>
@@ -92,7 +92,7 @@
                 <div class="d-flex justify-content-between mb-3">
                     <h5>Daftar Pertanyaan</h5>
                     <?php if ($survey->status === 'draft'): ?>
-                        <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#questionModal" onclick="openAddQuestionModal()">
+                        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#questionModal" onclick="openAddQuestionModal()">
                             <i class="fa fa-plus"></i> Tambah Pertanyaan
                         </button>
                     <?php endif; ?>
@@ -173,7 +173,7 @@
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title" id="questionModalLabel"><i class="fa fa-question-circle"></i> <span id="modalTitle">Tambah Pertanyaan</span></h5>
-                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="close text-white" data-bs-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -227,7 +227,7 @@
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                         <i class="fa fa-times"></i> Batal
                     </button>
                     <button type="button" class="btn btn-primary" onclick="saveQuestion()">
@@ -238,9 +238,9 @@
         </div>
     </div>
 
-    <script src="<?= base_url('assets/js/jquery.min.js') ?>"></script>
-    <script src="<?= base_url('assets/js/jquery-ui.min.js') ?>"></script>
-    <script src="<?= base_url('assets/js/bootstrap.bundle.min.js') ?>"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         $(document).ready(function() {
             // Enable drag-drop reordering
@@ -266,7 +266,7 @@
                                 $('#questions-list').prepend(
                                     '<div class="alert alert-success alert-dismissible fade show">' +
                                     response.message + 
-                                    '<button type="button" class="close" data-dismiss="alert">&times;</button>' +
+                                    '<button type="button" class="close" data-bs-dismiss="alert">&times;</button>' +
                                     '</div>'
                                 );
                             }
