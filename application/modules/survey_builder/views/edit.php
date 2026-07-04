@@ -54,18 +54,18 @@
 
         <ul class="nav nav-tabs" id="surveyTabs" role="tablist">
             <li class="nav-item">
-                <a class="nav-link active" id="info-tab" data-bs-toggle="tab" href="#info" role="tab">
+                <a class="nav-link active" id="info-tab" data-toggle="tab" href="#info" role="tab">
                     <i class="fa fa-info-circle"></i> Informasi Survey
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" id="questions-tab" data-bs-toggle="tab" href="#questions" role="tab">
+                <a class="nav-link" id="questions-tab" data-toggle="tab" href="#questions" role="tab">
                     <i class="fa fa-question-circle"></i> Pertanyaan 
                     <span class="badge badge-primary"><?= count($questions) ?></span>
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" id="logic-tab" data-bs-toggle="tab" href="#logic" role="tab">
+                <a class="nav-link" id="logic-tab" data-toggle="tab" href="#logic" role="tab">
                     <i class="fa fa-random"></i> Logic Jump
                 </a>
             </li>
@@ -92,7 +92,7 @@
                 <div class="d-flex justify-content-between mb-3">
                     <h5>Daftar Pertanyaan</h5>
                     <?php if ($survey->status === 'draft'): ?>
-                        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#questionModal" onclick="openAddQuestionModal()">
+                        <button type="button" class="btn btn-primary btn-sm" onclick="openAddQuestionModalAndShow()">
                             <i class="fa fa-plus"></i> Tambah Pertanyaan
                         </button>
                     <?php endif; ?>
@@ -173,7 +173,7 @@
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title" id="questionModalLabel"><i class="fa fa-question-circle"></i> <span id="modalTitle">Tambah Pertanyaan</span></h5>
-                    <button type="button" class="close text-white" data-bs-dismiss="modal" aria-label="Close">
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -227,7 +227,7 @@
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
                         <i class="fa fa-times"></i> Batal
                     </button>
                     <button type="button" class="btn btn-primary" onclick="saveQuestion()">
@@ -266,7 +266,7 @@
                                 $('#questions-list').prepend(
                                     '<div class="alert alert-success alert-dismissible fade show">' +
                                     response.message + 
-                                    '<button type="button" class="close" data-bs-dismiss="alert">&times;</button>' +
+                                    '<button type="button" class="close" data-dismiss="alert">&times;</button>' +
                                     '</div>'
                                 );
                             }
@@ -379,6 +379,11 @@
 
         // Modal functions for question management
         var currentMode = 'add'; // 'add' or 'edit'
+
+        function openAddQuestionModalAndShow() {
+            openAddQuestionModal();
+            $('#questionModal').modal('show');
+        }
 
         function openAddQuestionModal() {
             currentMode = 'add';
