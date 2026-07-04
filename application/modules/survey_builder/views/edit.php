@@ -18,6 +18,10 @@
         .core-badge { background: #dc3545; color: white; padding: 3px 8px; border-radius: 4px; font-size: 11px; }
         .ui-sortable-helper { box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
         .ui-sortable-placeholder { visibility: visible !important; background: #f0f0f0; border: 2px dashed #ccc; }
+        .form-select { display: block; width: 100%; padding: 0.375rem 0.75rem; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #495057; background-color: #fff; background-clip: padding-box; border: 1px solid #ced4da; border-radius: 0.25rem; transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out; }
+        .form-label { display: inline-block; margin-bottom: 0.5rem; font-weight: 500; }
+        .form-check-input { width: 1em; height: 1em; margin-top: 0.25em; vertical-align: top; background-color: #fff; background-repeat: no-repeat; background-position: center; background-size: contain; border: 1px solid rgba(0,0,0,0.25); appearance: none; -webkit-appearance: none; -moz-appearance: none; }
+        .form-check-label { margin-left: 0.5em; }
     </style>
 </head>
 <body>
@@ -87,9 +91,11 @@
             <div class="tab-pane fade" id="questions" role="tabpanel">
                 <div class="d-flex justify-content-between mb-3">
                     <h5>Daftar Pertanyaan</h5>
-                    <a href="<?= site_url('survey_question/create/' . $survey->id) ?>" class="btn btn-primary btn-sm">
-                        <i class="fa fa-plus"></i> Tambah Pertanyaan
-                    </a>
+                    <?php if ($survey->status === 'draft'): ?>
+                        <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#questionModal" onclick="openAddQuestionModal()">
+                            <i class="fa fa-plus"></i> Tambah Pertanyaan
+                        </button>
+                    <?php endif; ?>
                 </div>
 
                 <div class="alert alert-info">
@@ -102,13 +108,13 @@
                         <p class="text-muted text-center py-4">Belum ada pertanyaan. Tambahkan pertanyaan pertama Anda!</p>
                     <?php else: ?>
                         <?php foreach ($questions as $q): ?>
-                            <div class="question-card <?= $q->is_core ? 'core' : '' ?>" data-id="<?= $q->id ?>">
+                            <div class="question-card <?= $q->is_belma_inti ? 'core' : '' ?>" data-id="<?= $q->id ?>">
                                 <div class="d-flex align-items-start">
                                     <span class="question-handle"><i class="fa fa-arrows-alt"></i></span>
                                     <div class="flex-grow-1">
                                         <div class="mb-2">
-                                            <span class="question-type-badge"><?= strtoupper($q->type) ?></span>
-                                            <?php if ($q->is_core): ?>
+                                            <span class="question-type-badge"><?= strtoupper($q->question_type) ?></span>
+                                            <?php if ($q->is_belma_inti): ?>
                                                 <span class="core-badge"><i class="fa fa-lock"></i> CORE</span>
                                             <?php endif; ?>
                                             <span class="badge badge-secondary">Order: <?= $q->order ?></span>
@@ -119,12 +125,11 @@
                                         <?php endif; ?>
                                     </div>
                                     <div class="ml-3">
-                                        <?php if (!$q->is_core): ?>
-                                            <a href="<?= site_url('survey_question/edit/' . $survey->id . '/' . $q->id) ?>" 
-                                               class="btn btn-sm btn-outline-primary">
+                                        <?php if (!$q->is_belma_inti): ?>
+                                            <button type="button" onclick="openEditQuestionModal(<?= $q->id ?>)" class="btn btn-sm btn-outline-primary" title="Edit">
                                                 <i class="fa fa-edit"></i>
-                                            </a>
-                                            <button onclick="deleteQuestion(<?= $q->id ?>)" class="btn btn-sm btn-outline-danger">
+                                            </button>
+                                            <button onclick="deleteQuestion(<?= $q->id ?>)" class="btn btn-sm btn-outline-danger" title="Hapus">
                                                 <i class="fa fa-trash"></i>
                                             </button>
                                         <?php else: ?>
@@ -157,6 +162,77 @@
                         Logic jump akan ditampilkan di sini setelah ditambahkan.
                         <br><small>Klik "Tambah Logic" untuk membuat aturan conditional branching.</small>
                     </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Tambah/Edit Pertanyaan -->
+    <div class="modal fade" id="questionModal" tabindex="-1" role="dialog" aria-labelledby="questionModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="questionModalLabel"><i class="fa fa-question-circle"></i> <span id="modalTitle">Tambah Pertanyaan</span></h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="questionForm">
+                        <input type="hidden" id="questionId" name="question_id" value="">
+                        <input type="hidden" id="surveyId" name="survey_id" value="<?= $survey->id ?>">
+                        
+                        <div class="mb-3">
+                            <label for="question_text" class="form-label">Teks Pertanyaan *</label>
+                            <textarea name="question_text" id="question_text" class="form-control" rows="3" required placeholder="Masukkan teks pertanyaan"></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="question_type" class="form-label">Tipe Pertanyaan *</label>
+                            <select name="question_type" id="question_type" class="form-select" required>
+                                <option value="">-- Pilih Tipe --</option>
+                                <option value="text">Jawaban Singkat (Text)</option>
+                                <option value="textarea">Jawaban Panjang (Textarea)</option>
+                                <option value="number">Angka</option>
+                                <option value="date">Tanggal</option>
+                                <option value="radio">Pilihan Ganda (Radio)</option>
+                                <option value="checkbox">Checkbox</option>
+                                <option value="dropdown">Dropdown</option>
+                                <option value="matrix">Matriks</option>
+                                <option value="file">Upload File</option>
+                                <option value="scale_likert">Skala Likert</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3" id="options_container" style="display: none;">
+                            <label for="options" class="form-label">Opsi Jawaban (satu per baris) *</label>
+                            <textarea name="options" id="options" class="form-control" rows="5" placeholder="Contoh:&#10;Sangat Puas&#10;Puas&#10;Cukup Puas&#10;Kurang Puas&#10;Sangat Kurang Puas"></textarea>
+                            <div class="form-text">Masukkan setiap opsi pada baris terpisah</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="help_text" class="form-label">Teks Bantuan (Opsional)</label>
+                            <input type="text" name="help_text" id="help_text" class="form-control" placeholder="Teks bantuan untuk membantu responden">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="placeholder" class="form-label">Placeholder (Opsional)</label>
+                            <input type="text" name="placeholder" id="placeholder" class="form-control" placeholder="Teks placeholder untuk input">
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" name="is_required" id="is_required" class="form-check-input" value="1">
+                            <label class="form-check-label" for="is_required">Wajib Diisi</label>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        <i class="fa fa-times"></i> Batal
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="saveQuestion()">
+                        <i class="fa fa-save"></i> <span id="saveButtonText">Simpan Pertanyaan</span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -300,6 +376,133 @@
                 }
             });
         }
+
+        // Modal functions for question management
+        var currentMode = 'add'; // 'add' or 'edit'
+
+        function openAddQuestionModal() {
+            currentMode = 'add';
+            $('#questionId').val('');
+            $('#question_text').val('');
+            $('#question_type').val('');
+            $('#options').val('');
+            $('#help_text').val('');
+            $('#placeholder').val('');
+            $('#is_required').prop('checked', false);
+            $('#options_container').hide();
+            $('#modalTitle').text('Tambah Pertanyaan');
+            $('#saveButtonText').text('Simpan Pertanyaan');
+        }
+
+        function openEditQuestionModal(questionId) {
+            currentMode = 'edit';
+            $.ajax({
+                url: '<?= site_url('survey_question/get_question/') ?>' + questionId,
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        var q = response.question;
+                        $('#questionId').val(q.id);
+                        $('#question_text').val(q.question_text);
+                        $('#question_type').val(q.question_type);
+                        
+                        // Parse options if exists
+                        if (q.options) {
+                            try {
+                                var opts = JSON.parse(q.options);
+                                $('#options').val(opts.join('\n'));
+                            } catch(e) {
+                                $('#options').val(q.options);
+                            }
+                            if (['radio', 'checkbox', 'dropdown'].includes(q.question_type)) {
+                                $('#options_container').show();
+                            }
+                        } else {
+                            $('#options').val('');
+                        }
+                        
+                        $('#help_text').val(q.help_text || '');
+                        $('#placeholder').val(q.placeholder || '');
+                        $('#is_required').prop('checked', q.is_required == 1);
+                        
+                        $('#modalTitle').text('Edit Pertanyaan');
+                        $('#saveButtonText').text('Update Pertanyaan');
+                        
+                        $('#questionModal').modal('show');
+                    } else {
+                        alert('Error: ' + response.message);
+                    }
+                },
+                error: function(xhr) {
+                    const msg = xhr.responseJSON ? xhr.responseJSON.message : 'Terjadi kesalahan';
+                    alert('Error: ' + msg);
+                }
+            });
+        }
+
+        function saveQuestion() {
+            var questionId = $('#questionId').val();
+            var surveyId = $('#surveyId').val();
+            var formData = $('#questionForm').serialize();
+            
+            // Validation
+            var questionText = $('#question_text').val().trim();
+            var questionType = $('#question_type').val();
+            
+            if (!questionText) {
+                alert('Teks pertanyaan harus diisi!');
+                return;
+            }
+            
+            if (!questionType) {
+                alert('Tipe pertanyaan harus dipilih!');
+                return;
+            }
+            
+            if (['radio', 'checkbox', 'dropdown'].includes(questionType)) {
+                var options = $('#options').val().trim();
+                if (!options) {
+                    alert('Opsi jawaban harus diisi untuk tipe pertanyaan ini!');
+                    return;
+                }
+            }
+            
+            var url = currentMode === 'add' 
+                ? '<?= site_url('survey_question/store/') ?>' + surveyId
+                : '<?= site_url('survey_question/update/') ?>' + surveyId + '/' + questionId;
+            
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: formData,
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        $('#questionModal').modal('hide');
+                        location.reload();
+                    } else {
+                        alert('Error: ' + response.message);
+                    }
+                },
+                error: function(xhr) {
+                    const msg = xhr.responseJSON ? xhr.responseJSON.message : 'Terjadi kesalahan';
+                    alert('Error: ' + msg);
+                }
+            });
+        }
+
+        // Show/hide options field based on question type in modal
+        $('#question_type').on('change', function() {
+            var selectedType = $(this).val();
+            if (['radio', 'checkbox', 'dropdown'].includes(selectedType)) {
+                $('#options_container').slideDown();
+                $('#options').attr('required', 'required');
+            } else {
+                $('#options_container').slideUp();
+                $('#options').removeAttr('required');
+            }
+        });
     </script>
 </body>
 </html>
