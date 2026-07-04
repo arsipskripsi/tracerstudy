@@ -11,7 +11,7 @@
     <div class="container-fluid py-4">
         <div class="row mb-4">
             <div class="col-md-12">
-                <a href="<?= site_url('survey_builder/questions/' . $survey->id) ?>" class="btn btn-secondary">
+                <a href="<?= site_url('admin/surveys/edit/' . $survey->id) ?>" class="btn btn-secondary">
                     <i class="fa fa-arrow-left"></i> Kembali
                 </a>
                 <h3 class="mt-3"><i class="fa fa-plus-circle"></i> Tambah Pertanyaan Baru</h3>
@@ -26,7 +26,7 @@
                         <h5 class="mb-0"><i class="fa fa-edit"></i> Form Pertanyaan</h5>
                     </div>
                     <div class="card-body">
-                        <?= form_open('survey/question/store/' . $survey->id, ['id' => 'questionForm']) ?>
+                        <?= form_open('admin/surveys/question/store/' . $survey->id, ['id' => 'questionForm']) ?>
                             <div class="form-group">
                                 <label for="question_text">Teks Pertanyaan *</label>
                                 <textarea name="question_text" id="question_text" class="form-control" rows="3" required placeholder="Masukkan teks pertanyaan"></textarea>
@@ -68,7 +68,7 @@
                             <button type="submit" class="btn btn-primary">
                                 <i class="fa fa-save"></i> Simpan Pertanyaan
                             </button>
-                            <a href="<?= site_url('survey_builder/questions/' . $survey->id) ?>" class="btn btn-secondary">
+                            <a href="<?= site_url('admin/surveys/edit/' . $survey->id) ?>" class="btn btn-secondary">
                                 <i class="fa fa-times"></i> Batal
                             </a>
                         <?= form_close() ?>
@@ -128,7 +128,7 @@
                     success: function(response) {
                         if (response.success) {
                             alert(response.message);
-                            window.location.href = '<?= site_url('survey_builder/questions/' . $survey->id) ?>';
+                            window.location.href = '<?= site_url('admin/surveys/edit/' . $survey->id) ?>';
                         } else {
                             alert('Error: ' + response.message);
                         }
