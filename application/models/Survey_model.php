@@ -55,11 +55,15 @@ class Survey_model extends CI_Model {
     /**
      * Insert new survey
      * @param array $data Survey data
+     * @param bool $return_id Return insert ID
      * @return int Survey ID on success
      */
-    public function insert($data) {
+    public function insert($data, $return_id = true) {
         $this->db->insert('surveys', $data);
-        return $this->db->insert_id();
+        if ($return_id) {
+            return $this->db->insert_id();
+        }
+        return $this->db->affected_rows() > 0;
     }
 
     /**
