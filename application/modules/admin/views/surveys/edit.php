@@ -307,6 +307,39 @@ function deleteLogic(id) {
 
 // Modal functions for question management
 var currentMode = 'add'; // 'add' or 'edit'
+var csrfTokenName = '';
+var csrfHash = '';
+
+// Setup AJAX to automatically update CSRF token from response headers
+$.ajaxSetup({
+    complete: function(xhr) {
+        var newToken = xhr.getResponseHeader('X-CSRF-TOKEN');
+        var newTokenName = xhr.getResponseHeader('X-CSRF-TOKEN-NAME');
+        if (newToken && newTokenName) {
+            csrfTokenName = newTokenName;
+            csrfHash = newToken;
+        }
+    }
+});
+
+// Load CSRF token on page load
+function loadCsrfToken() {
+    $.ajax({
+        url: '<?= site_url('admin/surveys/get_csrf_token') ?>',
+        type: 'GET',
+        dataType: 'json',
+        async: false,
+        success: function(response) {
+            if (response.csrf_token_name && response.csrf_hash) {
+                csrfTokenName = response.csrf_token_name;
+                csrfHash = response.csrf_hash;
+            }
+        }
+    });
+}
+
+// Load initial CSRF token
+loadCsrfToken();
 
 function openAddQuestionModal() {
     currentMode = 'add';
@@ -321,6 +354,9 @@ function openAddQuestionModal() {
     $('#options').removeAttr('required');
     $('#modalTitle').text('Tambah Pertanyaan');
     $('#saveButtonText').text('Simpan Pertanyaan');
+    
+    // Refresh CSRF token when opening modal
+    loadCsrfToken();
 }
 
 function openEditQuestionModal(questionId) {
@@ -381,22 +417,21 @@ function openEditQuestionModal(questionId) {
 function saveQuestion() {
     var questionId = $('#questionId').val();
     var surveyId = <?= $survey->id ?>;
-    var formData = $('#questionForm').serialize();
-    
+
     // Validation
     var questionText = $('#question_text').val().trim();
     var questionType = $('#question_type').val();
-    
+
     if (!questionText) {
         alert('Teks pertanyaan harus diisi!');
         return;
     }
-    
+
     if (!questionType) {
         alert('Tipe pertanyaan harus dipilih!');
         return;
     }
-    
+
     if (['radio', 'checkbox', 'dropdown'].includes(questionType)) {
         var options = $('#options').val().trim();
         if (!options) {
@@ -404,11 +439,24 @@ function saveQuestion() {
             return;
         }
     }
-    
-    var url = currentMode === 'add' 
+
+    // Build form data from form fields
+    var formData = {
+        question_text: questionText,
+        question_type: questionType,
+        options: $('#options').val(),
+        help_text: $('#help_text').val(),
+        placeholder: $('#placeholder').val(),
+        is_required: $('#is_required').is(':checked') ? 1 : 0
+    };
+
+    // Add CSRF token from global variable
+    formData[csrfTokenName] = csrfHash;
+
+    var url = currentMode === 'add'
         ? '<?= site_url('admin/surveys/question/store/') ?>' + surveyId
         : '<?= site_url('admin/surveys/question/update/') ?>' + surveyId + '/' + questionId;
-    
+
     $.ajax({
         url: url,
         type: 'POST',
@@ -454,8 +502,9 @@ $('#question_type').on('change', function() {
             </div>
             <div class="modal-body">
                 <form id="questionForm">
+                    <?= form_hidden($this->security->get_csrf_token_name(), $this->security->get_csrf_hash()) ?>
                     <input type="hidden" id="questionId" name="question_id" value="">
-                    
+
                     <div class="mb-3">
                         <label for="question_text" class="form-label">Teks Pertanyaan *</label>
                         <textarea name="question_text" id="question_text" class="form-control" rows="3" required placeholder="Masukkan teks pertanyaan"></textarea>

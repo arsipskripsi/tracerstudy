@@ -261,7 +261,15 @@ class Surveys extends Admin_Controller {
             ['id' => $id, 'title' => $survey->title, 'status' => 'published']
         );
 
-        echo json_encode(['success' => true, 'message' => 'Survey berhasil dipublikasikan!']);
+        // Return new CSRF token in headers for next request
+        $new_csrf_name = $this->security->get_csrf_token_name();
+        $new_csrf_hash = $this->security->get_csrf_hash();
+        
+        $this->output
+            ->set_content_type('application/json')
+            ->set_header('X-CSRF-TOKEN', $new_csrf_hash)
+            ->set_header('X-CSRF-TOKEN-NAME', $new_csrf_name)
+            ->set_output(json_encode(['success' => true, 'message' => 'Survey berhasil dipublikasikan!']));
     }
 
     /**
@@ -281,6 +289,23 @@ class Surveys extends Admin_Controller {
             'success' => true,
             'question' => $question
         ]);
+    }
+
+    /**
+     * Get fresh CSRF token for AJAX requests
+     */
+    public function get_csrf_token() {
+        $csrf_token_name = $this->security->get_csrf_token_name();
+        $csrf_hash = $this->security->get_csrf_hash();
+        
+        $this->output
+            ->set_content_type('application/json')
+            ->set_header('X-CSRF-TOKEN', $csrf_hash)
+            ->set_header('X-CSRF-TOKEN-NAME', $csrf_token_name)
+            ->set_output(json_encode([
+                'csrf_token_name' => $csrf_token_name,
+                'csrf_hash' => $csrf_hash
+            ]));
     }
 
     /**
@@ -336,11 +361,19 @@ class Surveys extends Admin_Controller {
 
         $question_id = $this->survey_model->insert_question($data);
         
-        echo json_encode([
-            'success' => true, 
-            'message' => 'Pertanyaan berhasil ditambahkan!',
-            'question_id' => $question_id
-        ]);
+        // Return new CSRF token in headers for next request
+        $new_csrf_name = $this->security->get_csrf_token_name();
+        $new_csrf_hash = $this->security->get_csrf_hash();
+        
+        $this->output
+            ->set_content_type('application/json')
+            ->set_header('X-CSRF-TOKEN', $new_csrf_hash)
+            ->set_header('X-CSRF-TOKEN-NAME', $new_csrf_name)
+            ->set_output(json_encode([
+                'success' => true, 
+                'message' => 'Pertanyaan berhasil ditambahkan!',
+                'question_id' => $question_id
+            ]));
     }
 
     /**
@@ -405,7 +438,15 @@ class Surveys extends Admin_Controller {
 
         $this->survey_model->update_question($question_id, $data);
         
-        echo json_encode(['success' => true, 'message' => 'Pertanyaan berhasil diperbarui!']);
+        // Return new CSRF token in headers for next request
+        $new_csrf_name = $this->security->get_csrf_token_name();
+        $new_csrf_hash = $this->security->get_csrf_hash();
+        
+        $this->output
+            ->set_content_type('application/json')
+            ->set_header('X-CSRF-TOKEN', $new_csrf_hash)
+            ->set_header('X-CSRF-TOKEN-NAME', $new_csrf_name)
+            ->set_output(json_encode(['success' => true, 'message' => 'Pertanyaan berhasil diperbarui!']));
     }
 
     /**
@@ -440,7 +481,15 @@ class Surveys extends Admin_Controller {
         // Reorder remaining questions
         $this->survey_model->reorder_after_delete($survey_id, $question->order);
         
-        echo json_encode(['success' => true, 'message' => 'Pertanyaan berhasil dihapus!']);
+        // Return new CSRF token in headers for next request
+        $new_csrf_name = $this->security->get_csrf_token_name();
+        $new_csrf_hash = $this->security->get_csrf_hash();
+        
+        $this->output
+            ->set_content_type('application/json')
+            ->set_header('X-CSRF-TOKEN', $new_csrf_hash)
+            ->set_header('X-CSRF-TOKEN-NAME', $new_csrf_name)
+            ->set_output(json_encode(['success' => true, 'message' => 'Pertanyaan berhasil dihapus!']));
     }
 
     /**
@@ -473,6 +522,14 @@ class Surveys extends Admin_Controller {
             $this->survey_model->update_question_order($question_id, $order);
         }
 
-        echo json_encode(['success' => true, 'message' => 'Urutan pertanyaan berhasil diperbarui!']);
+        // Return new CSRF token in headers for next request
+        $new_csrf_name = $this->security->get_csrf_token_name();
+        $new_csrf_hash = $this->security->get_csrf_hash();
+        
+        $this->output
+            ->set_content_type('application/json')
+            ->set_header('X-CSRF-TOKEN', $new_csrf_hash)
+            ->set_header('X-CSRF-TOKEN-NAME', $new_csrf_name)
+            ->set_output(json_encode(['success' => true, 'message' => 'Urutan pertanyaan berhasil diperbarui!']));
     }
 }
