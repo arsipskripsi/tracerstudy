@@ -467,6 +467,14 @@ function saveQuestion() {
                 var modalEl = document.getElementById('questionModal');
                 var modal = bootstrap.Modal.getInstance(modalEl);
                 if (modal) modal.hide();
+                
+                // Show success notification
+                if (currentMode === 'add') {
+                    alert('✓ Pertanyaan berhasil ditambahkan!');
+                } else {
+                    alert('✓ Pertanyaan berhasil diperbarui!');
+                }
+                
                 location.reload();
             } else {
                 alert('Error: ' + response.message);
