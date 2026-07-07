@@ -213,6 +213,9 @@ $(document).ready(function() {
 });
 
 function deleteQuestion(id) {
+    // Refresh CSRF token before deleting
+    loadCsrfToken();
+    
     Swal.fire({
         title: 'Apakah Anda yakin?',
         text: "Pertanyaan ini akan dihapus secara permanen!",
@@ -226,7 +229,7 @@ function deleteQuestion(id) {
         if (result.isConfirmed) {
             $.ajax({
                 url: '<?= site_url('admin/surveys/question/delete/' . $survey->id) ?>/' + id,
-                type: 'DELETE',
+                type: 'POST',
                 dataType: 'json',
                 data: {
                     [csrfTokenName]: csrfHash
@@ -239,20 +242,30 @@ function deleteQuestion(id) {
                     }
                     
                     if (response.success) {
-                        Swal.fire(
-                            'Terhapus!',
-                            'Pertanyaan berhasil dihapus.',
-                            'success'
-                        ).then(() => {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Terhapus!',
+                            text: 'Pertanyaan berhasil dihapus.',
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(() => {
                             location.reload();
                         });
                     } else {
-                        Swal.fire('Error', response.message, 'error');
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal!',
+                            text: response.message || 'Gagal menghapus pertanyaan.'
+                        });
                     }
                 },
                 error: function(xhr) {
-                    const msg = xhr.responseJSON ? xhr.responseJSON.message : 'Terjadi kesalahan';
-                    Swal.fire('Error', msg, 'error');
+                    const msg = xhr.responseJSON ? xhr.responseJSON.message : 'Terjadi kesalahan saat menghubungi server';
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: msg
+                    });
                 }
             });
         }
@@ -318,6 +331,9 @@ function loadLogics() {
 }
 
 function deleteLogic(id) {
+    // Refresh CSRF token before deleting
+    loadCsrfToken();
+    
     Swal.fire({
         title: 'Apakah Anda yakin?',
         text: "Logic jump ini akan dihapus!",
@@ -331,7 +347,7 @@ function deleteLogic(id) {
         if (result.isConfirmed) {
             $.ajax({
                 url: '<?= site_url('admin/surveys/logic/delete/' . $survey->id) ?>/' + id,
-                type: 'DELETE',
+                type: 'POST',
                 dataType: 'json',
                 data: {
                     [csrfTokenName]: csrfHash
@@ -345,14 +361,28 @@ function deleteLogic(id) {
                     
                     if (response.success) {
                         loadLogics();
-                        Swal.fire('Terhapus!', 'Logic jump berhasil dihapus.', 'success');
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Terhapus!',
+                            text: 'Logic jump berhasil dihapus.',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
                     } else {
-                        Swal.fire('Error', response.message, 'error');
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal!',
+                            text: response.message || 'Gagal menghapus logic.'
+                        });
                     }
                 },
                 error: function(xhr) {
                     const msg = xhr.responseJSON ? xhr.responseJSON.message : 'Terjadi kesalahan';
-                    Swal.fire('Error', msg, 'error');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: msg
+                    });
                 }
             });
         }
