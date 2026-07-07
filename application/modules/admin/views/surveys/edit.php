@@ -31,6 +31,9 @@
         </div>
     <?php endif; ?>
 
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <ul class="nav nav-tabs" id="surveyTabs" role="tablist">
         <li class="nav-item" role="presentation">
             <button class="nav-link active" id="info-tab" data-bs-toggle="tab" data-bs-target="#info" type="button" role="tab">
@@ -210,22 +213,48 @@ $(document).ready(function() {
 });
 
 function deleteQuestion(id) {
-    if (!confirm('Apakah Anda yakin ingin menghapus pertanyaan ini?')) return;
-
-    $.ajax({
-        url: '<?= site_url('admin/surveys/question/delete/' . $survey->id) ?>/' + id,
-        type: 'DELETE',
-        dataType: 'json',
-        success: function(response) {
-            if (response.success) {
-                location.reload();
-            } else {
-                alert('Error: ' + response.message);
-            }
-        },
-        error: function(xhr) {
-            const msg = xhr.responseJSON ? xhr.responseJSON.message : 'Terjadi kesalahan';
-            alert('Error: ' + msg);
+    Swal.fire({
+        title: 'Apakah Anda yakin?',
+        text: "Pertanyaan ini akan dihapus secara permanen!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Ya, hapus!',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: '<?= site_url('admin/surveys/question/delete/' . $survey->id) ?>/' + id,
+                type: 'DELETE',
+                dataType: 'json',
+                data: {
+                    [csrfTokenName]: csrfHash
+                },
+                success: function(response) {
+                    // Update CSRF token from response for next request
+                    if (response.csrf_token_name && response.csrf_hash) {
+                        csrfTokenName = response.csrf_token_name;
+                        csrfHash = response.csrf_hash;
+                    }
+                    
+                    if (response.success) {
+                        Swal.fire(
+                            'Terhapus!',
+                            'Pertanyaan berhasil dihapus.',
+                            'success'
+                        ).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire('Error', response.message, 'error');
+                    }
+                },
+                error: function(xhr) {
+                    const msg = xhr.responseJSON ? xhr.responseJSON.message : 'Terjadi kesalahan';
+                    Swal.fire('Error', msg, 'error');
+                }
+            });
         }
     });
 }
@@ -289,18 +318,43 @@ function loadLogics() {
 }
 
 function deleteLogic(id) {
-    if (!confirm('Hapus logic jump ini?')) return;
-
-    $.ajax({
-        url: '<?= site_url('admin/surveys/logic/delete/' . $survey->id) ?>/' + id,
-        type: 'DELETE',
-        dataType: 'json',
-        success: function(response) {
-            if (response.success) {
-                loadLogics();
-            } else {
-                alert('Error: ' + response.message);
-            }
+    Swal.fire({
+        title: 'Apakah Anda yakin?',
+        text: "Logic jump ini akan dihapus!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Ya, hapus!',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: '<?= site_url('admin/surveys/logic/delete/' . $survey->id) ?>/' + id,
+                type: 'DELETE',
+                dataType: 'json',
+                data: {
+                    [csrfTokenName]: csrfHash
+                },
+                success: function(response) {
+                    // Update CSRF token from response for next request
+                    if (response.csrf_token_name && response.csrf_hash) {
+                        csrfTokenName = response.csrf_token_name;
+                        csrfHash = response.csrf_hash;
+                    }
+                    
+                    if (response.success) {
+                        loadLogics();
+                        Swal.fire('Terhapus!', 'Logic jump berhasil dihapus.', 'success');
+                    } else {
+                        Swal.fire('Error', response.message, 'error');
+                    }
+                },
+                error: function(xhr) {
+                    const msg = xhr.responseJSON ? xhr.responseJSON.message : 'Terjadi kesalahan';
+                    Swal.fire('Error', msg, 'error');
+                }
+            });
         }
     });
 }
@@ -361,6 +415,9 @@ function openAddQuestionModal() {
 
 function openEditQuestionModal(questionId) {
     currentMode = 'edit';
+    // Refresh CSRF token before loading question data
+    loadCsrfToken();
+    
     $.ajax({
         url: '<?= site_url('admin/surveys/question/get_question/') ?>' + questionId,
         type: 'GET',
@@ -404,12 +461,12 @@ function openEditQuestionModal(questionId) {
                 var modal = new bootstrap.Modal(document.getElementById('questionModal'));
                 modal.show();
             } else {
-                alert('Error: ' + response.message);
+                Swal.fire('Error', response.message, 'error');
             }
         },
         error: function(xhr) {
             const msg = xhr.responseJSON ? xhr.responseJSON.message : 'Terjadi kesalahan';
-            alert('Error: ' + msg);
+            Swal.fire('Error', msg, 'error');
         }
     });
 }
@@ -423,19 +480,19 @@ function saveQuestion() {
     var questionType = $('#question_type').val();
 
     if (!questionText) {
-        alert('Teks pertanyaan harus diisi!');
+        Swal.fire('Peringatan', 'Teks pertanyaan harus diisi!', 'warning');
         return;
     }
 
     if (!questionType) {
-        alert('Tipe pertanyaan harus dipilih!');
+        Swal.fire('Peringatan', 'Tipe pertanyaan harus dipilih!', 'warning');
         return;
     }
 
     if (['radio', 'checkbox', 'dropdown'].includes(questionType)) {
         var options = $('#options').val().trim();
         if (!options) {
-            alert('Opsi jawaban harus diisi untuk tipe pertanyaan ini!');
+            Swal.fire('Peringatan', 'Opsi jawaban harus diisi untuk tipe pertanyaan ini!', 'warning');
             return;
         }
     }
@@ -463,26 +520,46 @@ function saveQuestion() {
         data: formData,
         dataType: 'json',
         success: function(response) {
+            // Update CSRF token from response for next request
+            if (response.csrf_token_name && response.csrf_hash) {
+                csrfTokenName = response.csrf_token_name;
+                csrfHash = response.csrf_hash;
+            }
+            
             if (response.success) {
                 var modalEl = document.getElementById('questionModal');
                 var modal = bootstrap.Modal.getInstance(modalEl);
                 if (modal) modal.hide();
                 
-                // Show success notification
+                // Show success notification with SweetAlert2
                 if (currentMode === 'add') {
-                    alert('✓ Pertanyaan berhasil ditambahkan!');
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil!',
+                        text: 'Pertanyaan berhasil ditambahkan!',
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        location.reload();
+                    });
                 } else {
-                    alert('✓ Pertanyaan berhasil diperbarui!');
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil!',
+                        text: 'Pertanyaan berhasil diperbarui!',
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        location.reload();
+                    });
                 }
-                
-                location.reload();
             } else {
-                alert('Error: ' + response.message);
+                Swal.fire('Error', response.message, 'error');
             }
         },
         error: function(xhr) {
             const msg = xhr.responseJSON ? xhr.responseJSON.message : 'Terjadi kesalahan';
-            alert('Error: ' + msg);
+            Swal.fire('Error', msg, 'error');
         }
     });
 }

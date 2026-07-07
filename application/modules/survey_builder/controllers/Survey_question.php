@@ -103,10 +103,13 @@ class Survey_question extends MY_Controller {
 
         $question_id = $this->survey_question_model->insert($data);
         
+        // Return new CSRF token along with success response
         echo json_encode([
             'success' => true, 
             'message' => 'Pertanyaan berhasil ditambahkan!',
-            'question_id' => $question_id
+            'question_id' => $question_id,
+            'csrf_token_name' => $this->security->get_csrf_token_name(),
+            'csrf_hash' => $this->security->get_csrf_hash()
         ]);
     }
 
@@ -225,7 +228,12 @@ class Survey_question extends MY_Controller {
 
         $this->survey_question_model->update($question_id, $data);
         
-        echo json_encode(['success' => true, 'message' => 'Pertanyaan berhasil diperbarui!']);
+        echo json_encode([
+            'success' => true, 
+            'message' => 'Pertanyaan berhasil diperbarui!',
+            'csrf_token_name' => $this->security->get_csrf_token_name(),
+            'csrf_hash' => $this->security->get_csrf_hash()
+        ]);
     }
 
     public function delete($survey_id, $question_id) {
@@ -257,7 +265,12 @@ class Survey_question extends MY_Controller {
         // Reorder remaining questions
         $this->survey_question_model->reorder_after_delete($survey_id, $question->order);
         
-        echo json_encode(['success' => true, 'message' => 'Pertanyaan berhasil dihapus!']);
+        echo json_encode([
+            'success' => true, 
+            'message' => 'Pertanyaan berhasil dihapus!',
+            'csrf_token_name' => $this->security->get_csrf_token_name(),
+            'csrf_hash' => $this->security->get_csrf_hash()
+        ]);
     }
 
     public function reorder() {
@@ -287,6 +300,11 @@ class Survey_question extends MY_Controller {
             $this->survey_question_model->update_order($question_id, $order);
         }
 
-        echo json_encode(['success' => true, 'message' => 'Urutan pertanyaan berhasil diperbarui!']);
+        echo json_encode([
+            'success' => true, 
+            'message' => 'Urutan pertanyaan berhasil diperbarui!',
+            'csrf_token_name' => $this->security->get_csrf_token_name(),
+            'csrf_hash' => $this->security->get_csrf_hash()
+        ]);
     }
 }
