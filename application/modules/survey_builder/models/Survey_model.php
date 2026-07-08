@@ -119,6 +119,51 @@ class Survey_model extends MY_Model {
     }
 
     /**
+     * Get question by ID
+     */
+    public function get_question_by_id($question_id) {
+        return $this->db->get_where('survey_questions', ['id' => $question_id])->row();
+    }
+
+    /**
+     * Update question
+     */
+    public function update_question($question_id, $data) {
+        $this->db->where('id', $question_id);
+        return $this->db->update('survey_questions', $data);
+    }
+
+    /**
+     * Update question order
+     */
+    public function update_question_order($question_id, $order) {
+        $data = ['order' => $order];
+        $this->db->where('id', $question_id);
+        return $this->db->update('survey_questions', $data);
+    }
+
+    /**
+     * Delete question
+     */
+    public function delete_question($question_id) {
+        // Also delete associated logic jumps
+        $this->db->delete('survey_logics', ['question_id' => $question_id]);
+        $this->db->delete('survey_logics', ['target_question_id' => $question_id]);
+        
+        return $this->db->delete('survey_questions', ['id' => $question_id]);
+    }
+
+    /**
+     * Reorder questions after deletion
+     */
+    public function reorder_after_delete($survey_id, $deleted_order) {
+        $this->db->where('survey_id', $survey_id);
+        $this->db->where('order >', $deleted_order);
+        $this->db->set('order', 'order - 1', FALSE);
+        return $this->db->update('survey_questions');
+    }
+
+    /**
      * Insert logic jump
      */
     public function insert_logic($data) {

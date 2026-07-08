@@ -33,7 +33,8 @@ class Surveys extends Admin_Controller {
         parent::__construct();
         $this->auth_lib->requireRole(['super_admin', 'admin_pusat_karir']);
         $this->load->helper('tracer_audit');
-        $this->load->model('survey_model');
+        $this->load->model(['survey_model']);
+        $this->load->model('survey_builder/survey_question_model', 'survey_question_model');
         $this->load->helper(['form', 'url']);
     }
 
@@ -276,7 +277,6 @@ class Surveys extends Admin_Controller {
      * Get single question data via AJAX
      */
     public function get_question($question_id) {
-        $this->load->model('survey_question_model');
         $question = $this->survey_question_model->get_by_id($question_id);
         
         if (!$question) {

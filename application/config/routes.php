@@ -83,11 +83,14 @@ $route['admin/surveys/delete/(:num)']   = 'admin/surveys/delete/$1';
 $route['admin/surveys/publish/(:num)']  = 'admin/surveys/publish/$1';
 // Question management routes for admin surveys
 $route['admin/surveys/question/create/(:num)'] = 'survey_builder/survey_question/create/$1';
-$route['admin/surveys/question/store/(:num)']  = 'survey_builder/survey_question/store/$1';
+$route['admin/surveys/question/store/(:num)']  = 'admin/surveys/store_question/$1';
 $route['admin/surveys/question/edit/(:num)/(:num)'] = 'survey_builder/survey_question/edit/$1/$2';
-$route['admin/surveys/question/update/(:num)/(:num)'] = 'survey_builder/survey_question/update/$1/$2';
-$route['admin/surveys/question/delete/(:num)/(:num)'] = 'survey_builder/survey_question/delete/$1/$2';
+$route['admin/surveys/question/update/(:num)/(:num)'] = 'admin/surveys/update_question/$1/$2';
+$route['admin/surveys/question/delete/(:num)/(:num)'] = 'admin/surveys/delete_question/$1/$2';
 $route['admin/surveys/question/reorder'] = 'survey_builder/survey_question/reorder';
+$route['admin/surveys/question/get_question/(:num)'] = 'admin/surveys/get_question/$1';
+$route['admin/surveys/get_question/(:num)'] = 'admin/surveys/get_question/$1';
+$route['admin/surveys/get_csrf_token'] = 'admin/surveys/get_csrf_token';
 // Logic management routes for admin surveys
 $route['admin/surveys/logic/create/(:num)'] = 'survey_builder/survey_logic/create/$1';
 $route['admin/surveys/logic/store/(:num)']  = 'survey_builder/survey_logic/store/$1';
