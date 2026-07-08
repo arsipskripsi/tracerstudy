@@ -457,15 +457,20 @@ class Surveys extends Admin_Controller {
         
         log_message('info', 'Question updated successfully: ' . $question_id);
         
-        // Return new CSRF token in headers for next request
+        // Return new CSRF token in response body for next request
         $new_csrf_name = $this->security->get_csrf_token_name();
         $new_csrf_hash = $this->security->get_csrf_hash();
-        
+
+        $response = [
+            'success' => true,
+            'message' => 'Pertanyaan berhasil diperbarui!',
+            'csrf_token_name' => $new_csrf_name,
+            'csrf_hash' => $new_csrf_hash
+        ];
+
         $this->output
             ->set_content_type('application/json')
-            ->set_header('X-CSRF-TOKEN', $new_csrf_hash)
-            ->set_header('X-CSRF-TOKEN-NAME', $new_csrf_name)
-            ->set_output(json_encode(['success' => true, 'message' => 'Pertanyaan berhasil diperbarui!']));
+            ->set_output(json_encode($response));
     }
 
     /**

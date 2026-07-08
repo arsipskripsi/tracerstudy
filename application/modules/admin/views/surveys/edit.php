@@ -394,15 +394,21 @@ var currentMode = 'add'; // 'add' or 'edit'
 var csrfTokenName = '';
 var csrfHash = '';
 
-// Setup AJAX to automatically update CSRF token from response headers
+// Setup AJAX to automatically update CSRF token from response body
 $.ajaxSetup({
-    complete: function(xhr) {
-        var newToken = xhr.getResponseHeader('X-CSRF-TOKEN');
-        var newTokenName = xhr.getResponseHeader('X-CSRF-TOKEN-NAME');
-        if (newToken && newTokenName) {
-            csrfTokenName = newTokenName;
-            csrfHash = newToken;
+    dataFilter: function(data, type) {
+        if (type === 'json') {
+            try {
+                var response = JSON.parse(data);
+                if (response.csrf_token_name && response.csrf_hash) {
+                    csrfTokenName = response.csrf_token_name;
+                    csrfHash = response.csrf_hash;
+                }
+            } catch(e) {
+                // Ignore parsing errors for non-JSON responses
+            }
         }
+        return data;
     }
 });
 
