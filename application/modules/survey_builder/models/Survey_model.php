@@ -86,7 +86,7 @@ class Survey_model extends MY_Model {
     public function get_questions_with_logic($survey_id) {
         $this->db->select('q.*, l.condition_value, l.target_question_id');
         $this->db->from('survey_questions q');
-        $this->db->join('survey_logics l', 'q.id = l.question_id', 'left');
+        $this->db->join('survey_logic l', 'q.id = l.question_id', 'left');
         $this->db->where('q.survey_id', $survey_id);
         $this->db->order_by('q.order', 'ASC');
         
@@ -98,7 +98,7 @@ class Survey_model extends MY_Model {
      */
     public function get_logics($survey_id) {
         $this->db->where('survey_id', $survey_id);
-        return $this->db->get('survey_logics')->result();
+        return $this->db->get('survey_logic')->result();
     }
 
     /**
@@ -147,8 +147,8 @@ class Survey_model extends MY_Model {
      */
     public function delete_question($question_id) {
         // Also delete associated logic jumps
-        $this->db->delete('survey_logics', ['question_id' => $question_id]);
-        $this->db->delete('survey_logics', ['target_question_id' => $question_id]);
+        $this->db->delete('survey_logic', ['question_id' => $question_id]);
+        $this->db->delete('survey_logic', ['target_question_id' => $question_id]);
         
         return $this->db->delete('survey_questions', ['id' => $question_id]);
     }
@@ -167,7 +167,7 @@ class Survey_model extends MY_Model {
      * Insert logic jump
      */
     public function insert_logic($data) {
-        $this->db->insert('survey_logics', $data);
+        $this->db->insert('survey_logic', $data);
         return $this->db->insert_id();
     }
 

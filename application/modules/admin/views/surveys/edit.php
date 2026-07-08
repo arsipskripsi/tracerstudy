@@ -445,58 +445,89 @@ function openAddQuestionModal() {
 
 function openEditQuestionModal(questionId) {
     currentMode = 'edit';
-    // Refresh CSRF token before loading question data
-    loadCsrfToken();
     
+    // Show loading state
+    $('#questionModalLabel').html('<i class="bi bi-hourglass-split"></i> Memuat data...');
+    
+    // First ensure we have a fresh CSRF token
     $.ajax({
-        url: '<?= site_url('admin/surveys/question/get_question/') ?>' + questionId,
+        url: '<?= site_url('admin/surveys/get_csrf_token') ?>',
         type: 'GET',
         dataType: 'json',
-        success: function(response) {
-            if (response.success) {
-                var q = response.question;
-                $('#questionId').val(q.id);
-                $('#question_text').val(q.question_text);
-                $('#question_type').val(q.question_type);
+        success: function(tokenResponse) {
+            if (tokenResponse.csrf_token_name && tokenResponse.csrf_hash) {
+                csrfTokenName = tokenResponse.csrf_token_name;
+                csrfHash = tokenResponse.csrf_hash;
                 
-                // Parse options if exists
-                if (q.options) {
-                    try {
-                        var opts = JSON.parse(q.options);
-                        $('#options').val(opts.join('\n'));
-                    } catch(e) {
-                        $('#options').val(q.options);
+                // Now fetch the question data
+                $.ajax({
+                    url: '<?= site_url('admin/surveys/get_question/') ?>' + questionId,
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success && response.question) {
+                            var q = response.question;
+                            
+                            // Reset form first
+                            $('#questionForm')[0].reset();
+                            
+                            // Populate form fields
+                            $('#questionId').val(q.id);
+                            $('#question_text').val(q.question_text);
+                            $('#question_type').val(q.question_type);
+                            
+                            // Handle options
+                            $('#options_container').hide();
+                            $('#options').removeAttr('required');
+                            
+                            if (q.options) {
+                                try {
+                                    var opts = JSON.parse(q.options);
+                                    if (Array.isArray(opts)) {
+                                        $('#options').val(opts.join('\n'));
+                                    } else {
+                                        $('#options').val(q.options);
+                                    }
+                                } catch(e) {
+                                    $('#options').val(q.options);
+                                }
+                                
+                                // Show options field for applicable question types
+                                if (['radio', 'checkbox', 'dropdown'].includes(q.question_type)) {
+                                    $('#options_container').show();
+                                    $('#options').attr('required', 'required');
+                                }
+                            }
+                            
+                            $('#help_text').val(q.help_text || '');
+                            $('#placeholder').val(q.placeholder || '');
+                            $('#is_required').prop('checked', q.is_required == 1);
+                            
+                            // Update modal title and button
+                            $('#modalTitle').text('Edit Pertanyaan');
+                            $('#saveButtonText').text('Update Pertanyaan');
+                            $('#questionModalLabel').html('<i class="bi bi-question-circle"></i> <span id="modalTitle">Edit Pertanyaan</span>');
+                            
+                            // Show modal
+                            var modalEl = document.getElementById('questionModal');
+                            var modal = new bootstrap.Modal(modalEl);
+                            modal.show();
+                        } else {
+                            $('#questionModalLabel').html('<i class="bi bi-question-circle"></i> <span id="modalTitle">Tambah Pertanyaan</span>');
+                            Swal.fire('Error', response.message || 'Gagal memuat data pertanyaan', 'error');
+                        }
+                    },
+                    error: function(xhr) {
+                        $('#questionModalLabel').html('<i class="bi bi-question-circle"></i> <span id="modalTitle">Tambah Pertanyaan</span>');
+                        const msg = xhr.responseJSON ? xhr.responseJSON.message : 'Terjadi kesalahan saat menghubungi server';
+                        Swal.fire('Error', msg, 'error');
                     }
-                    if (['radio', 'checkbox', 'dropdown'].includes(q.question_type)) {
-                        $('#options_container').show();
-                        $('#options').attr('required', 'required');
-                    } else {
-                        $('#options_container').hide();
-                        $('#options').removeAttr('required');
-                    }
-                } else {
-                    $('#options').val('');
-                    $('#options_container').hide();
-                    $('#options').removeAttr('required');
-                }
-                
-                $('#help_text').val(q.help_text || '');
-                $('#placeholder').val(q.placeholder || '');
-                $('#is_required').prop('checked', q.is_required == 1);
-                
-                $('#modalTitle').text('Edit Pertanyaan');
-                $('#saveButtonText').text('Update Pertanyaan');
-                
-                // Show modal after loading data
-                var modal = new bootstrap.Modal(document.getElementById('questionModal'));
-                modal.show();
-            } else {
-                Swal.fire('Error', response.message, 'error');
+                });
             }
         },
-        error: function(xhr) {
-            const msg = xhr.responseJSON ? xhr.responseJSON.message : 'Terjadi kesalahan';
-            Swal.fire('Error', msg, 'error');
+        error: function() {
+            $('#questionModalLabel').html('<i class="bi bi-question-circle"></i> <span id="modalTitle">Tambah Pertanyaan</span>');
+            Swal.fire('Error', 'Gagal mendapatkan token keamanan', 'error');
         }
     });
 }

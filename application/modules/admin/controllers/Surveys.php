@@ -7,26 +7,26 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Surveys extends Admin_Controller {
 
     private $core_questions = [
-        ['question_text' => 'Apakah Anda puas dengan kualitas pembelajaran di program studi Anda?', 'type' => 'rating', 'is_core' => 1],
-        ['question_text' => 'Seberapa baik dosen dalam menjelaskan materi kuliah?', 'type' => 'rating', 'is_core' => 1],
-        ['question_text' => 'Apakah fasilitas laboratorium memadai untuk mendukung pembelajaran?', 'type' => 'multiple_choice', 'options' => 'Sangat Memadai|Memadai|Cukup|Kurang|Sangat Kurang', 'is_core' => 1],
-        ['question_text' => 'Bagaimana ketersediaan literatur di perpustakaan?', 'type' => 'multiple_choice', 'options' => 'Sangat Lengkap|Lengkap|Cukup|Kurang|Sangat Kurang', 'is_core' => 1],
-        ['question_text' => 'Apakah kurikulum sesuai dengan kebutuhan industri saat ini?', 'type' => 'rating', 'is_core' => 1],
-        ['question_text' => 'Seberapa efektif metode evaluasi pembelajaran yang diterapkan?', 'type' => 'rating', 'is_core' => 1],
-        ['question_text' => 'Apakah Anda mendapatkan bimbingan yang memadai dari dosen pembimbing?', 'type' => 'rating', 'is_core' => 1],
-        ['question_text' => 'Bagaimana kualitas layanan administrasi akademik?', 'type' => 'rating', 'is_core' => 1],
-        ['question_text' => 'Apakah terdapat kesempatan magang atau praktik kerja lapangan?', 'type' => 'multiple_choice', 'options' => 'Ya, sangat banyak|Ya, cukup|Tidak ada', 'is_core' => 1],
-        ['question_text' => 'Seberapa besar kontribusi kegiatan organisasi terhadap pengembangan soft skill Anda?', 'type' => 'rating', 'is_core' => 1],
-        ['question_text' => 'Apakah lingkungan kampus mendukung proses belajar?', 'type' => 'rating', 'is_core' => 1],
-        ['question_text' => 'Bagaimana kualitas koneksi internet di kampus?', 'type' => 'multiple_choice', 'options' => 'Sangat Baik|Baik|Cukup|Kurang|Sangat Kurang', 'is_core' => 1],
-        ['question_text' => 'Apakah Anda merasa siap bekerja setelah lulus?', 'type' => 'rating', 'is_core' => 1],
-        ['question_text' => 'Seberapa relevan tugas akhir/skripsi dengan bidang minat Anda?', 'type' => 'rating', 'is_core' => 1],
-        ['question_text' => 'Apakah informasi akademik disampaikan dengan jelas dan tepat waktu?', 'type' => 'rating', 'is_core' => 1],
-        ['question_text' => 'Bagaimana penilaian Anda terhadap etika dan profesionalisme dosen?', 'type' => 'rating', 'is_core' => 1],
-        ['question_text' => 'Apakah terdapat dukungan karir dari kampus?', 'type' => 'multiple_choice', 'options' => 'Sangat Baik|Baik|Cukup|Kurang|Tidak Ada', 'is_core' => 1],
-        ['question_text' => 'Seberapa puas Anda dengan keseluruhan pengalaman kuliah?', 'type' => 'rating', 'is_core' => 1],
-        ['question_text' => 'Apakah Anda akan merekomendasikan program studi ini kepada calon mahasiswa?', 'type' => 'multiple_choice', 'options' => 'Sangat Merekomendasikan|Merekomendasikan|Ragu-ragu|Tidak Merekomendasikan', 'is_core' => 1],
-        ['question_text' => 'Saran perbaikan untuk program studi:', 'type' => 'long_answer', 'is_core' => 1]
+        ['question_text' => 'Apakah Anda puas dengan kualitas pembelajaran di program studi Anda?', 'question_type' => 'scale_likert', 'is_belma_inti' => 1],
+        ['question_text' => 'Seberapa baik dosen dalam menjelaskan materi kuliah?', 'question_type' => 'scale_likert', 'is_belma_inti' => 1],
+        ['question_text' => 'Apakah fasilitas laboratorium memadai untuk mendukung pembelajaran?', 'question_type' => 'radio', 'options' => 'Sangat Memadai|Memadai|Cukup|Kurang|Sangat Kurang', 'is_belma_inti' => 1],
+        ['question_text' => 'Bagaimana ketersediaan literatur di perpustakaan?', 'question_type' => 'radio', 'options' => 'Sangat Lengkap|Lengkap|Cukup|Kurang|Sangat Kurang', 'is_belma_inti' => 1],
+        ['question_text' => 'Apakah kurikulum sesuai dengan kebutuhan industri saat ini?', 'question_type' => 'scale_likert', 'is_belma_inti' => 1],
+        ['question_text' => 'Seberapa efektif metode evaluasi pembelajaran yang diterapkan?', 'question_type' => 'scale_likert', 'is_belma_inti' => 1],
+        ['question_text' => 'Apakah Anda mendapatkan bimbingan yang memadai dari dosen pembimbing?', 'question_type' => 'scale_likert', 'is_belma_inti' => 1],
+        ['question_text' => 'Bagaimana kualitas layanan administrasi akademik?', 'question_type' => 'scale_likert', 'is_belma_inti' => 1],
+        ['question_text' => 'Apakah terdapat kesempatan magang atau praktik kerja lapangan?', 'question_type' => 'radio', 'options' => 'Ya, sangat banyak|Ya, cukup|Tidak ada', 'is_belma_inti' => 1],
+        ['question_text' => 'Seberapa besar kontribusi kegiatan organisasi terhadap pengembangan soft skill Anda?', 'question_type' => 'scale_likert', 'is_belma_inti' => 1],
+        ['question_text' => 'Apakah lingkungan kampus mendukung proses belajar?', 'question_type' => 'scale_likert', 'is_belma_inti' => 1],
+        ['question_text' => 'Bagaimana kualitas koneksi internet di kampus?', 'question_type' => 'radio', 'options' => 'Sangat Baik|Baik|Cukup|Kurang|Sangat Kurang', 'is_belma_inti' => 1],
+        ['question_text' => 'Apakah Anda merasa siap bekerja setelah lulus?', 'question_type' => 'scale_likert', 'is_belma_inti' => 1],
+        ['question_text' => 'Seberapa relevan tugas akhir/skripsi dengan bidang minat Anda?', 'question_type' => 'scale_likert', 'is_belma_inti' => 1],
+        ['question_text' => 'Apakah informasi akademik disampaikan dengan jelas dan tepat waktu?', 'question_type' => 'scale_likert', 'is_belma_inti' => 1],
+        ['question_text' => 'Bagaimana penilaian Anda terhadap etika dan profesionalisme dosen?', 'question_type' => 'scale_likert', 'is_belma_inti' => 1],
+        ['question_text' => 'Apakah terdapat dukungan karir dari kampus?', 'question_type' => 'radio', 'options' => 'Sangat Baik|Baik|Cukup|Kurang|Tidak Ada', 'is_belma_inti' => 1],
+        ['question_text' => 'Seberapa puas Anda dengan keseluruhan pengalaman kuliah?', 'question_type' => 'scale_likert', 'is_belma_inti' => 1],
+        ['question_text' => 'Apakah Anda akan merekomendasikan program studi ini kepada calon mahasiswa?', 'question_type' => 'radio', 'options' => 'Sangat Merekomendasikan|Merekomendasikan|Ragu-ragu|Tidak Merekomendasikan', 'is_belma_inti' => 1],
+        ['question_text' => 'Saran perbaikan untuk program studi:', 'question_type' => 'textarea', 'is_belma_inti' => 1]
     ];
 
     public function __construct() {
@@ -98,7 +98,7 @@ class Surveys extends Admin_Controller {
                     $question_data = [
                         'survey_id' => $survey_id,
                         'question_text' => $q['question_text'],
-                        'question_type' => $q['type'],
+                        'question_type' => $q['question_type'],
                         'options' => isset($q['options']) ? json_encode(explode('|', $q['options'])) : null,
                         'is_belma_inti' => 1,
                         'order' => $index + 1
