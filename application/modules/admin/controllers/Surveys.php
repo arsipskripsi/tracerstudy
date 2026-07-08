@@ -380,9 +380,13 @@ class Surveys extends Admin_Controller {
      * Update existing question
      */
     public function update_question($survey_id, $question_id) {
+        // Debug log
+        log_message('debug', 'Update question - survey_id: ' . $survey_id . ', question_id: ' . $question_id);
+        
         $survey = $this->survey_model->get_by_id($survey_id);
         
         if (!$survey || $survey->status === 'published') {
+            log_message('error', 'Update question failed - survey not found or published');
             $this->output->set_status_header(403);
             echo json_encode(['success' => false, 'message' => 'Survey sudah dipublikasikan.']);
             return;
@@ -391,6 +395,7 @@ class Surveys extends Admin_Controller {
         $question = $this->survey_question_model->get_by_id($question_id);
         
         if (!$question) {
+            log_message('error', 'Update question failed - question not found: ' . $question_id);
             $this->output->set_status_header(404);
             echo json_encode(['success' => false, 'message' => 'Pertanyaan tidak ditemukan.']);
             return;
@@ -398,6 +403,7 @@ class Surveys extends Admin_Controller {
 
         // BR-SUR-001: Pertanyaan inti tidak dapat diubah
         if ($question->is_belma_inti == 1) {
+            log_message('error', 'Update question failed - core question cannot be updated');
             $this->output->set_status_header(403);
             echo json_encode(['success' => false, 'message' => 'Pertanyaan inti tidak dapat diubah.']);
             return;
@@ -408,6 +414,7 @@ class Surveys extends Admin_Controller {
         $this->form_validation->set_rules('is_required', 'Wajib Diisi', 'numeric|in_list[0,1]');
 
         if ($this->form_validation->run() == FALSE) {
+            log_message('error', 'Update question validation failed: ' . validation_errors());
             $this->output->set_status_header(400);
             echo json_encode(['success' => false, 'message' => validation_errors()]);
             return;
@@ -419,6 +426,7 @@ class Surveys extends Admin_Controller {
         if (in_array($question_type, ['radio', 'checkbox', 'dropdown'])) {
             $options_str = $this->input->post('options');
             if (empty($options_str)) {
+                log_message('error', 'Update question failed - options required for this type');
                 $this->output->set_status_header(400);
                 echo json_encode(['success' => false, 'message' => 'Opsi harus diisi.']);
                 return;
@@ -435,8 +443,19 @@ class Surveys extends Admin_Controller {
             'is_required' => $this->input->post('is_required') ?? 0,
             'updated_at' => date('Y-m-d H:i:s')
         ];
+        
+        log_message('debug', 'Update question data: ' . json_encode($data));
 
-        $this->survey_question_model->update($question_id, $data);
+        $result = $this->survey_question_model->update($question_id, $data);
+        
+        if (!$result) {
+            log_message('error', 'Update question database operation failed');
+            $this->output->set_status_header(500);
+            echo json_encode(['success' => false, 'message' => 'Gagal menyimpan perubahan ke database.']);
+            return;
+        }
+        
+        log_message('info', 'Question updated successfully: ' . $question_id);
         
         // Return new CSRF token in headers for next request
         $new_csrf_name = $this->security->get_csrf_token_name();
