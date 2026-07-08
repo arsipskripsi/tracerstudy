@@ -388,7 +388,7 @@ class Surveys extends Admin_Controller {
             return;
         }
 
-        $question = $this->survey_model->get_question_by_id($question_id);
+        $question = $this->survey_question_model->get_by_id($question_id);
         
         if (!$question) {
             $this->output->set_status_header(404);
@@ -436,7 +436,7 @@ class Surveys extends Admin_Controller {
             'updated_at' => date('Y-m-d H:i:s')
         ];
 
-        $this->survey_model->update_question($question_id, $data);
+        $this->survey_question_model->update($question_id, $data);
         
         // Return new CSRF token in headers for next request
         $new_csrf_name = $this->security->get_csrf_token_name();

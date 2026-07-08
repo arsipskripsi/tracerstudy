@@ -429,7 +429,7 @@ function openAddQuestionModal() {
     currentMode = 'add';
     $('#questionId').val('');
     $('#question_text').val('');
-    $('#question_type').val('');
+    $('#question_type').val('').trigger('change');
     $('#options').val('');
     $('#help_text').val('');
     $('#placeholder').val('');
@@ -474,7 +474,7 @@ function openEditQuestionModal(questionId) {
                             // Populate form fields
                             $('#questionId').val(q.id);
                             $('#question_text').val(q.question_text);
-                            $('#question_type').val(q.question_type);
+                            $('#question_type').val(q.question_type).trigger('change');
                             
                             // Handle options
                             $('#options_container').hide();
@@ -491,12 +491,12 @@ function openEditQuestionModal(questionId) {
                                 } catch(e) {
                                     $('#options').val(q.options);
                                 }
-                                
-                                // Show options field for applicable question types
-                                if (['radio', 'checkbox', 'dropdown'].includes(q.question_type)) {
-                                    $('#options_container').show();
-                                    $('#options').attr('required', 'required');
-                                }
+                            }
+                            
+                            // Show options field for applicable question types
+                            if (['radio', 'checkbox', 'dropdown'].includes(q.question_type)) {
+                                $('#options_container').show();
+                                $('#options').attr('required', 'required');
                             }
                             
                             $('#help_text').val(q.help_text || '');
@@ -635,7 +635,7 @@ $('#question_type').on('change', function() {
         $('#options_container').slideUp();
         $('#options').removeAttr('required');
     }
-});
+}).trigger('change'); // Trigger change event on page load to set initial state
 </script>
 
 <!-- Modal Tambah/Edit Pertanyaan -->
