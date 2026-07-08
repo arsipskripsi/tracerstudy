@@ -14,8 +14,8 @@ __pycache__/
 .venv/
 venv/
 node_modules/
-julia-*/
-zig*/
+dist/
+build/
 target/
 .gradle/
 .mypy_cache/
@@ -30,7 +30,7 @@ target/
 # Environment
 .env
 .env.local
-*.env.*
+.env.*
 
 # Editors
 .vscode/
