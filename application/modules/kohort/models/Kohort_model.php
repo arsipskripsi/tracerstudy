@@ -113,10 +113,13 @@ class Kohort_model extends CI_Model {
         $total_alumni = $this->db->where('YEAR(tanggal_lulus)', $year)
                                  ->count_all_results($this->alumni_table);
         
-        // Total responded
-        $total_responded = $this->db->where('YEAR(tanggal_lulus)', $year)
-                                    ->where('status_response', 'responded')
-                                    ->count_all_results($this->alumni_table);
+        // Total responded - cek keberadaan di survey_responses
+        $this->db->select('COUNT(DISTINCT a.id) as responded');
+        $this->db->from('alumni a');
+        $this->db->join('survey_responses sr', 'a.id = sr.alumni_id', 'inner');
+        $this->db->where('YEAR(a.tanggal_lulus)', $year);
+        $result = $this->db->get()->row();
+        $total_responded = $result->responded;
         
         // Response rate
         $response_rate = $total_alumni > 0 ? ($total_responded / $total_alumni) * 100 : 0;

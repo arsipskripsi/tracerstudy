@@ -43,6 +43,12 @@ class Kohort extends MY_Controller {
             if (isset($k->status) && $k->status == 'aktif') {
                 $data['active_count']++;
             }
+            
+            // Hitung statistik per kohort menggunakan model
+            $stats = $this->kohort_model->get_statistics($k->id);
+            $k->total_alumni = $stats['total_alumni'];
+            $k->total_responded = $stats['total_responded'];
+            $k->total_unresponded = $k->total_alumni - $k->total_responded;
         }
         
         // Hitung alumni tanpa kohort

@@ -112,9 +112,9 @@
                                     <td><?= $k->tahun_selesai; ?></td>
                                     <td>
                                         <?php if ($k->status == 'aktif'): ?>
-                                            <span class="badge badge-success">Aktif</span>
+                                            <span class="badge bg-success text-white">Aktif</span>
                                         <?php else: ?>
-                                            <span class="badge badge-secondary">Tidak Aktif</span>
+                                            <span class="badge bg-secondary text-white">Tidak Aktif</span>
                                         <?php endif; ?>
                                     </td>
                                     <td>
