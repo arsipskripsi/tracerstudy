@@ -10,7 +10,7 @@
                     <div class="d-flex align-items-center">
                         <div class="flex-shrink-0">
                             <div class="bg-primary bg-gradient rounded-circle d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
-                                <i class="fas fa-graduation-cap text-white fa-2x"></i>
+                                <i class="bi bi-mortarboard-fill text-white fs-3"></i>
                             </div>
                         </div>
                         <div class="flex-grow-1 ms-3">
@@ -33,7 +33,7 @@
                     <div class="d-flex align-items-center">
                         <div class="flex-shrink-0">
                             <div class="bg-primary bg-gradient rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                                <i class="fas fa-users text-white fa-lg"></i>
+                                <i class="bi bi-people-fill text-white fs-4"></i>
                             </div>
                         </div>
                         <div class="flex-grow-1 ms-3">
@@ -52,7 +52,7 @@
                     <div class="d-flex align-items-center">
                         <div class="flex-shrink-0">
                             <div class="bg-success bg-gradient rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                                <i class="fas fa-briefcase text-white fa-lg"></i>
+                                <i class="bi bi-briefcase-fill text-white fs-4"></i>
                             </div>
                         </div>
                         <div class="flex-grow-1 ms-3">
@@ -71,7 +71,7 @@
                     <div class="d-flex align-items-center">
                         <div class="flex-shrink-0">
                             <div class="bg-info bg-gradient rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                                <i class="fas fa-store text-white fa-lg"></i>
+                                <i class="bi bi-shop text-white fs-4"></i>
                             </div>
                         </div>
                         <div class="flex-grow-1 ms-3">
@@ -90,7 +90,7 @@
                     <div class="d-flex align-items-center">
                         <div class="flex-shrink-0">
                             <div class="bg-warning bg-gradient rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                                <i class="fas fa-book-reader text-white fa-lg"></i>
+                                <i class="bi bi-book text-white fs-4"></i>
                             </div>
                         </div>
                         <div class="flex-grow-1 ms-3">
@@ -112,7 +112,7 @@
                     <div class="d-flex align-items-center">
                         <div class="flex-shrink-0">
                             <div class="bg-purple bg-gradient rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                                <i class="fas fa-clipboard-list text-white fa-lg"></i>
+                                <i class="bi bi-clipboard-data-fill text-white fs-4"></i>
                             </div>
                         </div>
                         <div class="flex-grow-1 ms-3">
@@ -131,7 +131,7 @@
                     <div class="d-flex align-items-center">
                         <div class="flex-shrink-0">
                             <div class="bg-success bg-gradient rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                                <i class="fas fa-check-circle text-white fa-lg"></i>
+                                <i class="bi bi-play-circle-fill text-white fs-4"></i>
                             </div>
                         </div>
                         <div class="flex-grow-1 ms-3">
@@ -150,7 +150,7 @@
                     <div class="d-flex align-items-center">
                         <div class="flex-shrink-0">
                             <div class="bg-danger bg-gradient rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                                <i class="fas fa-comments text-white fa-lg"></i>
+                                <i class="bi bi-chat-square-text-fill text-white fs-4"></i>
                             </div>
                         </div>
                         <div class="flex-grow-1 ms-3">
@@ -170,7 +170,7 @@
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white border-0 py-3">
                     <h5 class="mb-0 text-dark fw-bold">
-                        <i class="fas fa-history me-2"></i>Aktivitas Terbaru
+                        <i class="bi bi-clock-history me-2"></i>Aktivitas Terbaru
                     </h5>
                 </div>
                 <div class="card-body">
@@ -207,7 +207,7 @@
                     </div>
                     <?php else: ?>
                     <div class="text-center py-4">
-                        <i class="fas fa-inbox text-muted fa-3x mb-3"></i>
+                        <i class="bi bi-inbox text-muted display-4 mb-3"></i>
                         <p class="text-muted">Belum ada aktivitas tercatat</p>
                     </div>
                     <?php endif; ?>
@@ -220,7 +220,7 @@
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white border-0 py-3">
                     <h5 class="mb-0 text-dark fw-bold">
-                        <i class="fas fa-chart-pie me-2"></i>Status Alumni
+                        <i class="bi bi-pie-chart-fill me-2"></i>Status Alumni
                     </h5>
                 </div>
                 <div class="card-body">

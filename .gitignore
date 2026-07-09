@@ -1,62 +1,42 @@
-```php
-# Compiled and build artifacts
-*.pyc
-__pycache__/
-*.o
-*.obj
-*.class
-*.exe
-*.dll
-*.so
-*.a
-*.out
+```
+# CodeIgniter specific ignores
+application/logs/
+application/cache/
+application/config/database.php
+system/
 
 # Dependencies
-node_modules/
-venv/
-.venv/
-.env
-.env.local
-.env.*
+vendor/
 
 # Logs and temp files
 *.log
 *.tmp
+
+# Environment
+.env
+.env.local
+.env.*
+
+# Editor/IDE files
+.vscode/
+.idea/
 *.swp
 *.swo
 
-# Editors
-.vscode/
-.idea/
-
-# Coverage
-.coverage
-coverage/
-htmlcov/
-
-# System files
+# OS generated files
 .DS_Store
 Thumbs.db
 
-# Build directories
-dist/
+# Build artifacts
 build/
+dist/
 target/
-.gradle/
 
-# Python specific
-*.pyc
+# Python specific (if any Python files exist in project)
 __pycache__/
+*.pyc
 *.pyo
 *.pyd
-.Python
-*.so
-.Python
-*.egg-info/
-.eggs/
-.mypy_cache/
-.pytest_cache/
-.tox/
 
 # Compressed files
 *.zip
