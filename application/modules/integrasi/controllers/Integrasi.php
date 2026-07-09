@@ -1,6 +1,8 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
+require_once APPPATH . 'core/MY_Controller.php';
+
 /**
  * Integrasi Nasional Controller
  * Handles integration with tracerstudy.kemdikbud.go.id (Belmawa)
@@ -13,7 +15,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  * 
  * Role Access: Admin Pusat Karir, Super Admin
  */
-class Integrasi extends MX_Controller {
+class Integrasi extends MY_Controller {
 
     protected $user_data;
     protected $api_base_url;
@@ -22,17 +24,16 @@ class Integrasi extends MX_Controller {
     public function __construct() {
         parent::__construct();
         
-        // Check authentication
-        if (!$this->session->userdata('logged_in')) {
+        // Check authentication (already done in MY_Controller)
+        if (!$this->is_logged_in) {
             redirect('auth/login');
         }
 
         $this->load->model('integrasi_model');
-        $this->load->library('auth_lib');
         
         // Check role authorization
-        $this->user_data = $this->auth_lib->getUserData();
-        if (!in_array($this->user_data['role'], ['admin_pusat_karir', 'super_admin'])) {
+        $role = $this->session->userdata('role');
+        if (!in_array($role, ['admin_pusat_karir', 'super_admin'])) {
             show_error('Akses ditolak. Hanya Admin Pusat Karir dan Super Admin yang dapat mengakses modul ini.', 403);
         }
 
@@ -46,7 +47,13 @@ class Integrasi extends MX_Controller {
      */
     public function index() {
         $data['page_title'] = 'Integrasi Pelaporan Nasional';
-        $data['user'] = $this->user_data;
+        
+        // Get user data from session (MY_Controller already sets this up)
+        $data['user'] = [
+            'id' => $this->session->userdata('user_id'),
+            'username' => $this->session->userdata('username'),
+            'role' => $this->session->userdata('role')
+        ];
 
         // Get statistics
         $data['total_kohort'] = $this->db->count_all('kohorts');
@@ -83,7 +90,8 @@ class Integrasi extends MX_Controller {
      * Prepare data for export in Belmawa format
      */
     public function prepareExport($calculation_id) {
-        if (!in_array($this->user_data['role'], ['super_admin', 'admin_pusat_karir'])) {
+        $role = $this->session->userdata('role');
+        if (!in_array($role, ['super_admin', 'admin_pusat_karir'])) {
             $this->_output(['success' => false, 'message' => 'Unauthorized']);
             return;
         }
@@ -119,7 +127,8 @@ class Integrasi extends MX_Controller {
      * Send data to Belmawa API
      */
     public function sendToBelmawa($calculation_id) {
-        if (!in_array($this->user_data['role'], ['super_admin', 'admin_pusat_karir'])) {
+        $role = $this->session->userdata('role');
+        if (!in_array($role, ['super_admin', 'admin_pusat_karir'])) {
             $this->_output(['success' => false, 'message' => 'Unauthorized']);
             return;
         }
@@ -160,7 +169,7 @@ class Integrasi extends MX_Controller {
             // Update database - mark as sent (immutable flag)
             $update_data = [
                 'sent_to_belmawa_at' => date('Y-m-d H:i:s'),
-                'sent_by' => $this->user_data['id'],
+                'sent_by' => $this->session->userdata('user_id'),
                 'belmawa_response' => json_encode($response['data'])
             ];
             
@@ -192,7 +201,8 @@ class Integrasi extends MX_Controller {
      * Bulk send multiple calculations to Belmawa
      */
     public function bulkSend() {
-        if (!in_array($this->user_data['role'], ['super_admin', 'admin_pusat_karir'])) {
+        $role = $this->session->userdata('role');
+        if (!in_array($role, ['super_admin', 'admin_pusat_karir'])) {
             $this->_output(['success' => false, 'message' => 'Unauthorized']);
             return;
         }
@@ -235,7 +245,7 @@ class Integrasi extends MX_Controller {
             if ($response['success']) {
                 $update_data = [
                     'sent_to_belmawa_at' => date('Y-m-d H:i:s'),
-                    'sent_by' => $this->user_data['id'],
+                    'sent_by' => $this->session->userdata('user_id'),
                     'belmawa_response' => json_encode($response['data'])
                 ];
                 
@@ -261,7 +271,8 @@ class Integrasi extends MX_Controller {
      * Download export file in various formats
      */
     public function downloadExport($calculation_id, $format = 'json') {
-        if (!in_array($this->user_data['role'], ['super_admin', 'admin_pusat_karir'])) {
+        $role = $this->session->userdata('role');
+        if (!in_array($role, ['super_admin', 'admin_pusat_karir'])) {
             show_error('Unauthorized', 403);
             return;
         }
@@ -287,7 +298,8 @@ class Integrasi extends MX_Controller {
      * Sync status from Belmawa
      */
     public function syncStatus() {
-        if (!in_array($this->user_data['role'], ['super_admin', 'admin_pusat_karir'])) {
+        $role = $this->session->userdata('role');
+        if (!in_array($role, ['super_admin', 'admin_pusat_karir'])) {
             $this->_output(['success' => false, 'message' => 'Unauthorized']);
             return;
         }
@@ -403,7 +415,7 @@ class Integrasi extends MX_Controller {
      */
     private function _logActivity($action, $details) {
         $this->db->insert('activity_logs', [
-            'user_id' => $this->user_data['id'],
+            'user_id' => $this->session->userdata('user_id'),
             'action' => $action,
             'details' => json_encode($details),
             'created_at' => date('Y-m-d H:i:s')
