@@ -31,6 +31,38 @@ class Dashboard extends Admin_Controller {
         $data['total_surveys'] = $this->db->count_all('surveys');
         $data['total_responses'] = $this->db->count_all('survey_responses');
         
+        // Hitung total kohort aktif (untuk Admin Pusat Karir)
+        $this->db->where('is_active', 1);
+        $data['active_kohorts'] = $this->db->count_all_results('kohort');
+        
+        // Hitung alumni belum terassign kohort
+        $this->db->where('kohort_id IS NULL OR kohort_id = 0', NULL, FALSE);
+        $data['alumni_without_kohort'] = $this->db->count_all_results('alumni');
+        
+        // Statistik IKU untuk dashboard
+        $role = $this->session->userdata('role');
+        if (in_array($role, ['super_admin', 'admin_pusat_karir'])) {
+            // Total perhitungan IKU
+            $data['total_iku_calculations'] = $this->db->count_all_results('iku_calculations');
+            
+            // IKU sudah diverifikasi
+            $this->db->where('verified_at IS NOT NULL');
+            $data['verified_iku'] = $this->db->count_all_results('iku_calculations');
+            
+            // IKU menunggu verifikasi
+            $this->db->where('verified_at IS NULL');
+            $data['pending_iku'] = $this->db->count_all_results('iku_calculations');
+            
+            // Data sudah dikirim ke Belmawa
+            $this->db->where('sent_to_belmawa_at IS NOT NULL');
+            $data['sent_to_belmawa'] = $this->db->count_all_results('iku_calculations');
+        } else {
+            $data['total_iku_calculations'] = 0;
+            $data['verified_iku'] = 0;
+            $data['pending_iku'] = 0;
+            $data['sent_to_belmawa'] = 0;
+        }
+        
         // Statistik berdasarkan role
         $this->db->where('role', 'super_admin');
         $data['total_super_admin'] = $this->db->count_all_results('users');

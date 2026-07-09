@@ -70,6 +70,53 @@
         </div>
     </div>
     
+    <!-- IKU & Kohort Statistics (Admin Pusat Karir & Super Admin) -->
+    <?php if (in_array($this->session->userdata('role'), ['super_admin', 'admin_pusat_karir'])): ?>
+    <div class="row g-4 mb-4">
+        <div class="col-md-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0"><i class="bi bi-bar-chart-line me-2"></i>Status IKU & Kohort</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <div class="p-3 bg-primary bg-opacity-10 rounded text-center">
+                                <h4 class="mb-0 text-primary fw-bold"><?= number_format($active_kohorts ?? 0) ?></h4>
+                                <small class="text-muted">Kohort Aktif</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="p-3 bg-warning bg-opacity-10 rounded text-center">
+                                <h4 class="mb-0 text-warning fw-bold"><?= number_format($alumni_without_kohort ?? 0) ?></h4>
+                                <small class="text-muted">Alumni Belum Kohort</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="p-3 bg-success bg-opacity-10 rounded text-center">
+                                <h4 class="mb-0 text-success fw-bold"><?= number_format($verified_iku ?? 0) ?></h4>
+                                <small class="text-muted">IKU Diverifikasi</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="p-3 bg-danger bg-opacity-10 rounded text-center">
+                                <h4 class="mb-0 text-danger fw-bold"><?= number_format($pending_iku ?? 0) ?></h4>
+                                <small class="text-muted">Menunggu Verifikasi</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="p-3 bg-info bg-opacity-10 rounded text-center">
+                                <h4 class="mb-0 text-info fw-bold"><?= number_format($sent_to_belmawa ?? 0) ?></h4>
+                                <small class="text-muted">Terkirim Belmawa</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
+    
     <!-- User Roles Statistics -->
     <div class="row g-4 mb-4">
         <div class="col-md-12">
@@ -205,6 +252,26 @@
                 </div>
                 <div class="card-body">
                     <div class="row g-3">
+                        <?php if (in_array($this->session->userdata('role'), ['super_admin', 'admin_pusat_karir'])): ?>
+                        <div class="col-md-3">
+                            <a href="<?= base_url('kohort') ?>" class="btn btn-outline-primary w-100 py-3">
+                                <i class="bi bi-people-fill fs-4 d-block mb-2"></i>
+                                Kelola Kohort
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="<?= base_url('iku/verifikasi') ?>" class="btn btn-outline-success w-100 py-3">
+                                <i class="bi bi-check-circle fs-4 d-block mb-2"></i>
+                                Verifikasi IKU
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="<?= base_url('integrasi') ?>" class="btn btn-outline-info w-100 py-3">
+                                <i class="bi bi-cloud-upload fs-4 d-block mb-2"></i>
+                                Kirim ke Belmawa
+                            </a>
+                        </div>
+                        <?php endif; ?>
                         <div class="col-md-3">
                             <a href="<?= base_url('admin/users') ?>" class="btn btn-outline-primary w-100 py-3">
                                 <i class="bi bi-people fs-4 d-block mb-2"></i>
