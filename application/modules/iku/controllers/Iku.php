@@ -207,9 +207,9 @@ class Iku extends MY_Controller {
         // Calculate summary statistics
         $data['summary'] = $this->_calculateSummary($tahun, $prodi_id);
 
-        $this->load->view('templates/header', $data);
+        $this->load->view('iku/templates/header', $data);
         $this->load->view('iku/dashboard', $data);
-        $this->load->view('templates/footer');
+        $this->load->view('iku/templates/footer');
     }
 
     /**
@@ -255,9 +255,9 @@ class Iku extends MY_Controller {
             $data['alumni_detail'] = [];
         }
 
-        $this->load->view('templates/header', $data);
+        $this->load->view('iku/templates/header', $data);
         $this->load->view('iku/detail', $data);
-        $this->load->view('templates/footer');
+        $this->load->view('iku/templates/footer');
     }
 
     /**
