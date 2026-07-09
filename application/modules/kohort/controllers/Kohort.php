@@ -1,18 +1,20 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
+require_once APPPATH . 'core/MY_Controller.php';
+
 /**
  * Kohort Module Controller
  * Handles CRUD operations for Kohort Management
  * Role: Admin Pusat Karir, Super Admin
  */
-class Kohort extends MX_Controller {
+class Kohort extends MY_Controller {
 
     public function __construct() {
         parent::__construct();
         
-        // Check authentication
-        if (!$this->session->userdata('logged_in')) {
+        // Check authentication (already done in MY_Controller, but explicit check for clarity)
+        if (!$this->is_logged_in) {
             redirect('auth/login');
         }
 
