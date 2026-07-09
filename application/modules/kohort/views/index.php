@@ -5,10 +5,10 @@
                 <h4 class="mb-0"><?= $title; ?></h4>
                 <div class="page-title-right">
                     <a href="<?= site_url('kohort/create'); ?>" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Tambah Kohort Baru
+                        <i class="bi bi-plus-lg"></i> Tambah Kohort Baru
                     </a>
                     <a href="<?= site_url('kohort/auto_generate'); ?>" class="btn btn-info ml-2">
-                        <i class="fas fa-magic"></i> Auto Generate Kohort Tahun Ini
+                        <i class="bi bi-magic"></i> Auto Generate Kohort Tahun Ini
                     </a>
                 </div>
             </div>
@@ -17,7 +17,7 @@
 
     <?php if ($this->session->flashdata('success')): ?>
         <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="fas fa-check-circle"></i> <?= $this->session->flashdata('success'); ?>
+            <i class="bi bi-check-circle-fill"></i> <?= $this->session->flashdata('success'); ?>
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
             </button>
@@ -26,7 +26,7 @@
 
     <?php if ($this->session->flashdata('error')): ?>
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="fas fa-exclamation-circle"></i> <?= $this->session->flashdata('error'); ?>
+            <i class="bi bi-exclamation-circle-fill"></i> <?= $this->session->flashdata('error'); ?>
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
             </button>
@@ -35,7 +35,7 @@
 
     <?php if ($this->session->flashdata('warning')): ?>
         <div class="alert alert-warning alert-dismissible fade show" role="alert">
-            <i class="fas fa-exclamation-triangle"></i> <?= $this->session->flashdata('warning'); ?>
+            <i class="bi bi-exclamation-triangle-fill"></i> <?= $this->session->flashdata('warning'); ?>
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
             </button>
@@ -44,7 +44,7 @@
 
     <?php if ($this->session->flashdata('info')): ?>
         <div class="alert alert-info alert-dismissible fade show" role="alert">
-            <i class="fas fa-info-circle"></i> <?= $this->session->flashdata('info'); ?>
+            <i class="bi bi-info-circle-fill"></i> <?= $this->session->flashdata('info'); ?>
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
             </button>
@@ -133,19 +133,19 @@
                                         <a href="<?= site_url('kohort/edit/' . $k->id); ?>" 
                                            class="btn btn-sm btn-info" 
                                            title="Edit">
-                                            <i class="fas fa-edit"></i>
+                                            <i class="bi bi-pencil-square"></i>
                                         </a>
                                         <a href="<?= site_url('kohort/toggle_status/' . $k->id); ?>" 
                                            class="btn btn-sm btn-<?= $k->status == 'aktif' ? 'warning' : 'success'; ?>" 
                                            title="<?= $k->status == 'aktif' ? 'Nonaktifkan' : 'Aktifkan'; ?>"
                                            onclick="return confirm('Ubah status kohort ini?')">
-                                            <i class="fas fa-<?= $k->status == 'aktif' ? 'pause' : 'play'; ?>"></i>
+                                            <i class="bi bi-<?= $k->status == 'aktif' ? 'pause-circle' : 'play-circle'; ?>"></i>
                                         </a>
                                         <a href="<?= site_url('kohort/delete/' . $k->id); ?>" 
                                            class="btn btn-sm btn-danger" 
                                            title="Hapus"
                                            onclick="return confirm('Apakah Anda yakin ingin menghapus kohort ini? Tindakan ini tidak dapat dibatalkan.')">
-                                            <i class="fas fa-trash"></i>
+                                            <i class="bi bi-trash"></i>
                                         </a>
                                     </td>
                                 </tr>
@@ -154,7 +154,7 @@
                                 <?php if (empty($kohorts)): ?>
                                 <tr>
                                     <td colspan="7" class="text-center">
-                                        <i class="fas fa-inbox fa-3x text-muted mb-3 d-block"></i>
+                                        <i class="bi bi-inbox text-muted mb-3 d-block"></i>
                                         Belum ada kohort. Silakan tambahkan kohort baru.
                                     </td>
                                 </tr>

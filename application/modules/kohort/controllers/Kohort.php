@@ -56,9 +56,9 @@ class Kohort extends MY_Controller {
         
         $data['kohorts'] = $all_kohorts;
         
-        $this->load->view('admin/templates/header');
+        $this->load->view('kohort/templates/header');
         $this->load->view('kohort/index', $data);
-        $this->load->view('admin/templates/footer');
+        $this->load->view('kohort/templates/footer');
     }
 
     /**
@@ -68,9 +68,9 @@ class Kohort extends MY_Controller {
         $data['title'] = 'Tambah Kohort Baru';
         $data['action'] = site_url('kohort/store');
         
-        $this->load->view('admin/templates/header');
+        $this->load->view('kohort/templates/header');
         $this->load->view('kohort/form', $data);
-        $this->load->view('admin/templates/footer');
+        $this->load->view('kohort/templates/footer');
     }
 
     /**
@@ -129,9 +129,9 @@ class Kohort extends MY_Controller {
             show_404();
         }
         
-        $this->load->view('admin/templates/header');
+        $this->load->view('kohort/templates/header');
         $this->load->view('kohort/form', $data);
-        $this->load->view('admin/templates/footer');
+        $this->load->view('kohort/templates/footer');
     }
 
     /**
