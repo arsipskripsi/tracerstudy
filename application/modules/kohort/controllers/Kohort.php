@@ -37,11 +37,10 @@ class Kohort extends MY_Controller {
         // Ambil semua kohort dari database
         $all_kohorts = $this->kohort_model->get_all();
         
-        // Hitung kohort aktif secara manual (graduation_year >= tahun sekarang)
-        $current_year = date('Y');
+        // Hitung kohort aktif secara manual (status = 'aktif')
         $data['active_count'] = 0;
         foreach ($all_kohorts as $k) {
-            if (isset($k->graduation_year) && $k->graduation_year >= $current_year) {
+            if (isset($k->status) && $k->status == 'aktif') {
                 $data['active_count']++;
             }
         }
@@ -75,23 +74,26 @@ class Kohort extends MY_Controller {
      */
     public function store() {
         $this->form_validation->set_rules('name', 'Nama Kohort', 'required|trim|max_length[100]');
-        $this->form_validation->set_rules('graduation_year', 'Tahun Lulus', 'required|integer|min_length[4]|max_length[4]');
+        $this->form_validation->set_rules('tahun_mulai', 'Tahun Mulai', 'required|integer|min_length[4]|max_length[4]');
+        $this->form_validation->set_rules('tahun_selesai', 'Tahun Selesai', 'required|integer|min_length[4]|max_length[4]');
         
         if ($this->form_validation->run() == FALSE) {
             $this->session->set_flashdata('error', validation_errors());
             redirect('kohort/create');
         } else {
-            $graduation_year = $this->input->post('graduation_year', TRUE);
+            $tahun_mulai = $this->input->post('tahun_mulai', TRUE);
+            $tahun_selesai = $this->input->post('tahun_selesai', TRUE);
             $data = [
-                'name' => $this->input->post('name', TRUE),
-                'graduation_year' => $graduation_year
-                // is_active ditentukan otomatis berdasarkan graduation_year >= tahun sekarang
+                'nama' => $this->input->post('name', TRUE),
+                'tahun_mulai' => $tahun_mulai,
+                'tahun_selesai' => $tahun_selesai,
+                'status' => 'aktif'
             ];
             
-            // Check if graduation year already exists
-            $existing = $this->kohort_model->get_by_year($data['graduation_year']);
+            // Check if tahun_selesai already exists
+            $existing = $this->kohort_model->get_by_year($data['tahun_selesai']);
             if ($existing) {
-                $this->session->set_flashdata('error', 'Kohort untuk tahun ' . $data['graduation_year'] . ' sudah ada.');
+                $this->session->set_flashdata('error', 'Kohort untuk tahun selesai ' . $data['tahun_selesai'] . ' sudah ada.');
                 redirect('kohort/create');
             }
             
@@ -101,7 +103,7 @@ class Kohort extends MY_Controller {
                 $this->session->set_flashdata('success', 'Kohort berhasil ditambahkan.');
                 
                 // Auto-assign alumni to this kohort based on graduation year
-                $this->kohort_model->auto_assign_alumni($data['graduation_year']);
+                $this->kohort_model->auto_assign_alumni($data['tahun_selesai']);
                 
                 redirect('kohort');
             } else {
@@ -134,23 +136,25 @@ class Kohort extends MY_Controller {
      */
     public function update($id) {
         $this->form_validation->set_rules('name', 'Nama Kohort', 'required|trim|max_length[100]');
-        $this->form_validation->set_rules('graduation_year', 'Tahun Lulus', 'required|integer|min_length[4]|max_length[4]');
+        $this->form_validation->set_rules('tahun_mulai', 'Tahun Mulai', 'required|integer|min_length[4]|max_length[4]');
+        $this->form_validation->set_rules('tahun_selesai', 'Tahun Selesai', 'required|integer|min_length[4]|max_length[4]');
         
         if ($this->form_validation->run() == FALSE) {
             $this->session->set_flashdata('error', validation_errors());
             redirect('kohort/edit/' . $id);
         } else {
-            $graduation_year = $this->input->post('graduation_year', TRUE);
+            $tahun_mulai = $this->input->post('tahun_mulai', TRUE);
+            $tahun_selesai = $this->input->post('tahun_selesai', TRUE);
             $data = [
-                'name' => $this->input->post('name', TRUE),
-                'graduation_year' => $graduation_year
-                // is_active ditentukan otomatis berdasarkan graduation_year >= tahun sekarang
+                'nama' => $this->input->post('name', TRUE),
+                'tahun_mulai' => $tahun_mulai,
+                'tahun_selesai' => $tahun_selesai
             ];
             
-            // Check if graduation year already exists for other kohort
-            $existing = $this->kohort_model->get_by_year($data['graduation_year']);
+            // Check if tahun_selesai already exists for other kohort
+            $existing = $this->kohort_model->get_by_year($data['tahun_selesai']);
             if ($existing && $existing->id != $id) {
-                $this->session->set_flashdata('error', 'Kohort untuk tahun ' . $data['graduation_year'] . ' sudah ada.');
+                $this->session->set_flashdata('error', 'Kohort untuk tahun selesai ' . $data['tahun_selesai'] . ' sudah ada.');
                 redirect('kohort/edit/' . $id);
             }
             
@@ -196,11 +200,25 @@ class Kohort extends MY_Controller {
     }
 
     /**
-     * Toggle active status (deprecated - status now auto-calculated based on graduation_year)
-     * This method is kept for backward compatibility but will redirect with info message
+     * Toggle active status
      */
     public function toggle_status($id) {
-        $this->session->set_flashdata('info', 'Status kohort sekarang ditentukan otomatis berdasarkan tahun lulus. Kohort dengan tahun lulus >= tahun ini dianggap aktif.');
+        $kohort = $this->kohort_model->get_by_id($id);
+        
+        if (!$kohort) {
+            $this->session->set_flashdata('error', 'Kohort tidak ditemukan.');
+            redirect('kohort');
+        }
+        
+        $new_status = ($kohort->status == 'aktif') ? 'tidak_aktif' : 'aktif';
+        $result = $this->kohort_model->update($id, ['status' => $new_status]);
+        
+        if ($result) {
+            $this->session->set_flashdata('success', 'Status kohort berhasil diubah menjadi ' . $new_status . '.');
+        } else {
+            $this->session->set_flashdata('error', 'Gagal mengubah status kohort.');
+        }
+        
         redirect('kohort');
     }
 
@@ -213,8 +231,10 @@ class Kohort extends MY_Controller {
         
         if (!$existing) {
             $data = [
-                'name' => 'Kohort ' . $current_year,
-                'graduation_year' => $current_year
+                'nama' => 'Kohort ' . $current_year,
+                'tahun_mulai' => $current_year - 3, // Assuming 4-year program
+                'tahun_selesai' => $current_year,
+                'status' => 'aktif'
             ];
             
             $result = $this->kohort_model->create($data);

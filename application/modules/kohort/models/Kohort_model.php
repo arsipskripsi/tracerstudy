@@ -18,7 +18,7 @@ class Kohort_model extends CI_Model {
      * Get all kohorts
      */
     public function get_all() {
-        return $this->db->order_by('graduation_year', 'DESC')->get($this->table)->result();
+        return $this->db->order_by('tahun_selesai', 'DESC')->get($this->table)->result();
     }
 
     /**
@@ -29,20 +29,19 @@ class Kohort_model extends CI_Model {
     }
 
     /**
-     * Get kohort by graduation year
+     * Get kohort by graduation year (matches tahun_selesai)
      */
     public function get_by_year($year) {
-        return $this->db->get_where($this->table, ['graduation_year' => $year])->row();
+        return $this->db->get_where($this->table, ['tahun_selesai' => $year])->row();
     }
 
     /**
      * Get active kohorts only
      */
     public function get_active() {
-        // Filter aktif berdasarkan graduation_year >= tahun sekarang
-        $current_year = date('Y');
-        return $this->db->where('graduation_year >=', $current_year)
-                        ->order_by('graduation_year', 'DESC')
+        // Filter aktif berdasarkan status = 'aktif'
+        return $this->db->where('status', 'aktif')
+                        ->order_by('tahun_selesai', 'DESC')
                         ->get($this->table)
                         ->result();
     }
@@ -51,8 +50,7 @@ class Kohort_model extends CI_Model {
      * Count active kohorts
      */
     public function count_active() {
-        $current_year = date('Y');
-        return $this->db->where('graduation_year >=', $current_year)
+        return $this->db->where('status', 'aktif')
                         ->count_all_results($this->table);
     }
 
@@ -86,7 +84,7 @@ class Kohort_model extends CI_Model {
         $kohort = $this->get_by_id($kohort_id);
         if (!$kohort) return 0;
         
-        return $this->db->where('YEAR(tanggal_lulus)', $kohort->graduation_year)
+        return $this->db->where('YEAR(tanggal_lulus)', $kohort->tahun_selesai)
                         ->count_all_results($this->alumni_table);
     }
 
@@ -99,11 +97,6 @@ class Kohort_model extends CI_Model {
         // no explicit assignment is needed. Alumni are automatically 
         // part of the kohort based on their graduation year.
         
-        // However, if you want to add a kohort_id column to alumni table:
-        // $this->db->where('YEAR(tanggal_lulus)', $graduation_year)
-        //          ->set('kohort_id', $kohort_id)
-        //          ->update($this->alumni_table);
-        
         return TRUE;
     }
 
@@ -114,7 +107,7 @@ class Kohort_model extends CI_Model {
         $kohort = $this->get_by_id($kohort_id);
         if (!$kohort) return NULL;
         
-        $year = $kohort->graduation_year;
+        $year = $kohort->tahun_selesai;
         
         // Total alumni
         $total_alumni = $this->db->where('YEAR(tanggal_lulus)', $year)
@@ -139,8 +132,8 @@ class Kohort_model extends CI_Model {
      * Count alumni without assigned kohort (no matching graduation year)
      */
     public function count_unassigned() {
-        // Get all graduation years from kohort table
-        $this->db->select('graduation_year');
+        // Get all graduation years from kohort table (using tahun_selesai)
+        $this->db->select('tahun_selesai');
         $kohorts = $this->db->get($this->table)->result();
         
         if (empty($kohorts)) {
@@ -148,7 +141,7 @@ class Kohort_model extends CI_Model {
             return $this->db->count_all_results($this->alumni_table);
         }
         
-        $years = array_column($kohorts, 'graduation_year');
+        $years = array_column($kohorts, 'tahun_selesai');
         
         // Count alumni whose graduation year is NOT in kohort list
         $this->db->where_not_in('YEAR(tanggal_lulus)', $years);

@@ -6,10 +6,12 @@ __pycache__/
 # Dependencies
 vendor/
 node_modules/
+composer.lock
 
 # Logs and temp files
 *.log
 *.tmp
+*.swp
 
 # Environment
 .env
@@ -24,8 +26,10 @@ node_modules/
 .DS_Store
 Thumbs.db
 
-# Build and distribution
-build/
-dist/
-target/
+# CodeIgniter specific
+application/logs/
+application/cache/
+application/config/autoload.php
+application/config/database.php
+system/
 ```
