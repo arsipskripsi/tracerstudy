@@ -357,6 +357,143 @@ class Iku extends MY_Controller {
     }
 
     /**
+     * Bulk approve/reject verifikasi
+     * Multiple IDs can be processed at once
+     */
+    public function bulkVerification()
+    {
+        if (!in_array($this->user_data['role'], ['super_admin', 'admin_pusat_karir'])) {
+            $this->_output(['success' => false, 'message' => 'Unauthorized']);
+            return;
+        }
+
+        $ids = $this->input->post('ids'); // array of verification IDs
+        $action = $this->input->post('action'); // approve or reject
+        $catatan = $this->input->post('catatan');
+
+        if (empty($ids) || !is_array($ids)) {
+            $this->_output(['success' => false, 'message' => 'Tidak ada data yang dipilih']);
+            return;
+        }
+
+        $this->db->trans_begin();
+        $success_count = 0;
+        $fail_count = 0;
+
+        try {
+            foreach ($ids as $id) {
+                $update_data = [
+                    'status' => $action === 'approve' ? 'approved' : 'rejected',
+                    'verified_at' => date('Y-m-d H:i:s'),
+                    'catatan' => $catatan
+                ];
+
+                $this->db->where('id', $id);
+                $result = $this->db->update('verifikasi_data', $update_data);
+
+                if ($result) {
+                    // Update alumni status if approved
+                    if ($action === 'approve') {
+                        $verif = $this->db->get_where('verifikasi_data', ['id' => $id])->row();
+                        if ($verif) {
+                            $this->db->where('id', $verif->alumni_id);
+                            $this->db->update('alumni', ['is_verified' => 1]);
+                            
+                            // Trigger recalculation (BR-IKU-004)
+                            $alumni = $this->db->get_where('alumni', ['id' => $verif->alumni_id])->row();
+                            if ($alumni) {
+                                $this->ikucalculator->calculate($alumni->kohort_id, $alumni->prodi_id);
+                            }
+                        }
+                    }
+                    $success_count++;
+                } else {
+                    $fail_count++;
+                }
+            }
+
+            if ($this->db->trans_status() === FALSE) {
+                throw new Exception('Database error');
+            }
+
+            $this->db->trans_commit();
+            $this->_output([
+                'success' => true, 
+                'message' => "Bulk verifikasi berhasil: {$success_count} sukses, {$fail_count} gagal"
+            ]);
+
+        } catch (Exception $e) {
+            $this->db->trans_rollback();
+            $this->_output(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Halaman verifikasi dengan UI lengkap untuk approve/reject
+     * Includes individual and bulk actions
+     */
+    public function verifikasi_ui()
+    {
+        $data['page_title'] = 'Verifikasi & Validasi Data IKU';
+        $data['user'] = $this->user_data;
+
+        // Only admin_pusat_karir and super_admin can verify (BR-IKU-005)
+        if (!in_array($this->user_data['role'], ['super_admin', 'admin_pusat_karir'])) {
+            show_error('Anda tidak memiliki akses untuk verifikasi data', 403);
+            return;
+        }
+
+        // Get filter parameters
+        $status = $this->input->get('status') ?: 'pending';
+        $kohort_id = $this->input->get('kohort_id');
+        $prodi_id = $this->input->get('prodi_id');
+
+        // Get pending verification list with more details
+        $this->db->select('vd.*, a.nim, a.nama_lengkap, a.prodi_id, p.nama as prodi_nama, u.nama as verifikator_nama');
+        $this->db->from('verifikasi_data vd');
+        $this->db->join('alumni a', 'vd.alumni_id = a.id');
+        $this->db->join('program_studi p', 'a.prodi_id = p.id', 'left');
+        $this->db->join('users u', 'vd.verifikator_id = u.id', 'left');
+        $this->db->where('vd.status', $status);
+        
+        if ($kohort_id) {
+            $this->db->where('YEAR(a.tanggal_lulus)', $kohort_id);
+        }
+        
+        if ($prodi_id) {
+            $this->db->where('a.prodi_id', $prodi_id);
+        }
+        
+        $this->db->order_by('vd.created_at', 'DESC');
+        $data['verifications'] = $this->db->get()->result_array();
+
+        // Get statistics
+        $this->db->select('COUNT(*) as total');
+        $this->db->where('status', 'pending');
+        $data['pending_count'] = $this->db->get('verifikasi_data')->row()->total;
+        
+        $this->db->where('status', 'approved');
+        $data['approved_count'] = $this->db->get('verifikasi_data')->row()->total;
+        
+        $this->db->where('status', 'rejected');
+        $data['rejected_count'] = $this->db->get('verifikasi_data')->row()->total;
+
+        // Get kohorts for filter (using graduation_year from alumni)
+        $this->db->select('DISTINCT YEAR(tanggal_lulus) as tahun');
+        $this->db->order_by('tahun', 'DESC');
+        $data['kohorts'] = $this->db->get('alumni')->result_array();
+
+        // Get prodis for filter
+        $this->db->select('id, nama');
+        $this->db->order_by('nama');
+        $data['prodis'] = $this->db->get('program_studi')->result_array();
+
+        $this->load->view('templates/header', $data);
+        $this->load->view('iku/verification/index', $data);
+        $this->load->view('templates/footer');
+    }
+
+    /**
      * Export template Belmawa
      * Hanya untuk admin_pusat_karir/super_admin (BR-IKU-005)
      * Data immutable setelah dikirim (BR-IKU-006)

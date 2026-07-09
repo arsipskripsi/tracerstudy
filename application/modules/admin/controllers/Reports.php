@@ -28,13 +28,13 @@ class Reports extends Admin_Controller {
         $data['total_responses'] = $this->db->count_all('survey_responses');
         
         // Alumni berdasarkan tahun lulus
-        $this->db->select('graduation_year, COUNT(*) as total');
-        $this->db->group_by('graduation_year');
+        $this->db->select('YEAR(tanggal_lulus) as graduation_year, COUNT(*) as total');
+        $this->db->group_by('YEAR(tanggal_lulus)');
         $this->db->order_by('graduation_year', 'DESC');
         $data['alumni_by_year'] = $this->db->get('alumni')->result_array();
         
         // Response rate per survei
-        $this->db->select('s.title, s.status, COUNT(sr.id) as response_count');
+        $this->db->select('s.id, s.title, s.status, COUNT(sr.id) as response_count');
         $this->db->from('surveys s');
         $this->db->join('survey_responses sr', 's.id = sr.survey_id', 'left');
         $this->db->group_by('s.id');
@@ -68,7 +68,7 @@ class Reports extends Admin_Controller {
         
         // Get questions
         $this->db->where('survey_id', $survey_id);
-        $this->db->order_by('question_order', 'ASC');
+        $this->db->order_by('`order`', 'ASC');
         $data['questions'] = $this->db->get('survey_questions')->result_array();
         
         // Load view
