@@ -39,10 +39,21 @@ class Kohort_model extends CI_Model {
      * Get active kohorts only
      */
     public function get_active() {
-        return $this->db->where('is_active', 1)
+        // Filter aktif berdasarkan graduation_year >= tahun sekarang
+        $current_year = date('Y');
+        return $this->db->where('graduation_year >=', $current_year)
                         ->order_by('graduation_year', 'DESC')
                         ->get($this->table)
                         ->result();
+    }
+
+    /**
+     * Count active kohorts
+     */
+    public function count_active() {
+        $current_year = date('Y');
+        return $this->db->where('graduation_year >=', $current_year)
+                        ->count_all_results($this->table);
     }
 
     /**
@@ -122,5 +133,25 @@ class Kohort_model extends CI_Model {
             'total_responded' => $total_responded,
             'response_rate' => round($response_rate, 2)
         ];
+    }
+
+    /**
+     * Count alumni without assigned kohort (no matching graduation year)
+     */
+    public function count_unassigned() {
+        // Get all graduation years from kohort table
+        $this->db->select('graduation_year');
+        $kohorts = $this->db->get($this->table)->result();
+        
+        if (empty($kohorts)) {
+            // If no kohorts exist, all alumni are unassigned
+            return $this->db->count_all_results($this->alumni_table);
+        }
+        
+        $years = array_column($kohorts, 'graduation_year');
+        
+        // Count alumni whose graduation year is NOT in kohort list
+        $this->db->where_not_in('YEAR(tanggal_lulus)', $years);
+        return $this->db->count_all_results($this->alumni_table);
     }
 }
