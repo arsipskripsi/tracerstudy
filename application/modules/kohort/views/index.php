@@ -58,7 +58,7 @@
                 <div class="card-body">
                     <h5 class="card-title">Kohort Aktif</h5>
                     <h2 class="mb-0"><?= isset($active_count) ? $active_count : 0; ?></h2>
-                    <small>Kohort dengan tahun lulus >= <?= date('Y'); ?></small>
+                    <small>Kohort dengan status = aktif</small>
                 </div>
             </div>
         </div>
@@ -67,7 +67,7 @@
                 <div class="card-body">
                     <h5 class="card-title">Alumni Tanpa Kohort</h5>
                     <h2 class="mb-0"><?= isset($unassigned_count) ? $unassigned_count : 0; ?></h2>
-                    <small>Perlu dibuatkan kohort baru</small>
+                    <small>Tahun lulus tidak ada di kohort</small>
                 </div>
             </div>
         </div>
@@ -92,27 +92,26 @@
                                 <tr>
                                     <th style="width: 5%;">No</th>
                                     <th style="width: 25%;">Nama Kohort</th>
-                                    <th style="width: 15%;">Tahun Lulus</th>
-                                    <th style="width: 15%;">Status</th>
+                                    <th style="width: 15%;">Tahun Mulai</th>
+                                    <th style="width: 15%;">Tahun Selesai</th>
+                                    <th style="width: 10%;">Status</th>
                                     <th style="width: 15%;">Jumlah Alumni</th>
-                                    <th style="width: 15%;">Tanggal Dibuat</th>
                                     <th style="width: 10%;" class="text-center">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php 
                                 $no = 1;
-                                $current_year = date('Y');
                                 foreach ($kohorts as $k): 
-                                    $is_active = (isset($k->graduation_year) && $k->graduation_year >= $current_year);
                                     $stats = $this->kohort_model->get_statistics($k->id);
                                 ?>
                                 <tr>
                                     <td><?= $no++; ?></td>
-                                    <td><strong><?= htmlspecialchars($k->name); ?></strong></td>
-                                    <td><?= $k->graduation_year; ?></td>
+                                    <td><strong><?= htmlspecialchars($k->nama); ?></strong></td>
+                                    <td><?= $k->tahun_mulai; ?></td>
+                                    <td><?= $k->tahun_selesai; ?></td>
                                     <td>
-                                        <?php if ($is_active): ?>
+                                        <?php if ($k->status == 'aktif'): ?>
                                             <span class="badge badge-success">Aktif</span>
                                         <?php else: ?>
                                             <span class="badge badge-secondary">Tidak Aktif</span>
@@ -130,18 +129,18 @@
                                             0 alumni
                                         <?php endif; ?>
                                     </td>
-                                    <td><?= isset($k->created_at) ? date('d M Y', strtotime($k->created_at)) : '-'; ?></td>
                                     <td class="text-center">
                                         <a href="<?= site_url('kohort/edit/' . $k->id); ?>" 
                                            class="btn btn-sm btn-info" 
                                            title="Edit">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <?php if ($is_active): ?>
-                                        <span class="badge badge-success ml-1">Aktif</span>
-                                        <?php else: ?>
-                                        <span class="badge badge-secondary ml-1">Tidak Aktif</span>
-                                        <?php endif; ?>
+                                        <a href="<?= site_url('kohort/toggle_status/' . $k->id); ?>" 
+                                           class="btn btn-sm btn-<?= $k->status == 'aktif' ? 'warning' : 'success'; ?>" 
+                                           title="<?= $k->status == 'aktif' ? 'Nonaktifkan' : 'Aktifkan'; ?>"
+                                           onclick="return confirm('Ubah status kohort ini?')">
+                                            <i class="fas fa-<?= $k->status == 'aktif' ? 'pause' : 'play'; ?>"></i>
+                                        </a>
                                         <a href="<?= site_url('kohort/delete/' . $k->id); ?>" 
                                            class="btn btn-sm btn-danger" 
                                            title="Hapus"

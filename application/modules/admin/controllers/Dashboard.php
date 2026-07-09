@@ -32,7 +32,8 @@ class Dashboard extends Admin_Controller {
         $data['total_responses'] = $this->db->count_all('survey_responses');
         
         // Hitung total kohort aktif (untuk Admin Pusat Karir)
-        $this->db->where('is_active', 1);
+        // Kohort aktif adalah yang status = 'aktif'
+        $this->db->where('status', 'aktif');
         $data['active_kohorts'] = $this->db->count_all_results('kohort');
         
         // Hitung alumni belum terassign kohort
